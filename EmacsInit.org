@@ -1,0 +1,227 @@
+* Emacs Config
+
+  Embedded withing the text of this file is my actual emacs
+  configuration.
+
+*** Personal Information
+
+***** Load up personalization from a file
+
+      No reason any of this ever needs to get committed to github.
+
+      Things that currently need to be defined by the private file in
+      order for the rest of this config to function:
+
+      * user-full-name
+      * user-mail-address
+      * org-directory
+
+#+begin_src emacs-lisp
+(org-babel-load-file "~/.emacs.d/PrivateConfig.org")
+#+end_src
+
+*** Appearance
+
+***** Select a better font. 
+
+Consolas is my favorite, but it's only available
+by default in Windows. However it's easy enough to install the
+Microsoft TrueType fonts in *nix.
+
+#+begin_src emacs-lisp
+  ;  (set-frame-font "consolas")
+    (set-face-attribute 'default nil :height 105)
+#+end_src
+
+***** Remove all of the UI
+
+I don't like looking at a bunch of menus and scrollbars. This goes
+double when I'm on one of my smaller laptops where screen space is premium.
+
+#+begin_src emacs-lisp
+    (scroll-bar-mode 0)
+    (menu-bar-mode 0)
+    (tool-bar-mode 0)
+#+end_src
+
+***** No startup screen
+
+#+begin_src elisp
+  (setq inhibit-startup-message t)
+#+end_src
+
+*** Default Behavior
+
+***** Get rid of backup files (Foo.bar~)
+#+begin_src emacs-lisp
+    (setq
+          backup-by-copying t
+	  backup-directory-alist '(("." . "~/.saves")))
+#+end_src
+
+***** Interactively Do Things (ido-mode)
+
+******* Initialize ido-mode
+#+begin_src emacs-lisp
+(ido-mode t)
+#+end_src
+
+******* Use ido everywhere
+
+This hooks the 'completing-read' function and adds ido completion to
+basically anything that prompts.
+
+#+begin_src emacs-lisp
+  (defvar ido-enable-replace-completing-read t
+    "If non-nil, use the ido-completing-read function
+         instead of the builtin completing-read function")
+  (defadvice completing-read
+    (around use-ido-when-possible activate)
+    (if (or (not ido-enable-replace-completing-read)
+            (and (boundp 'ido-cur-list) ido-cur-list))
+        ad-do-it
+      (let ((allcomp (all-completions "" collection predicate)))
+        (if allcomp
+            (setq ad-return-value
+                  (ido-completing-read prompt allcomp nil
+                                       require-match initial-input
+                                       hist def))
+          ad-do-it))))
+#+end_src
+
+*** Setup Individual Modes
+***** Org Mode
+******* Top level org init
+
+#+begin_src
+(require 'org-install)
+#+end_src
+
+
+******* Org Appearance
+********* Hide leading stars in org documents (clean mode)
+#+begin_src emacs-lisp
+(custom-set-variables
+  '(org-hide-leading-stars t))
+#+end_src
+
+********* Only use odd numbered levels
+#+begin_src emacs-lisp
+(custom-set-variables
+  '(org-odd-levels-only t))
+#+end_src
+
+******* Org Directory
+	
+	This always points to my file-server. Later on, I'll work on
+	some VPN solution so that this is transparent when I'm on a
+	remote network.
+
+	( .. moved into local config .. )
+	
+	Also, while we're at it, let's define a helper function to
+	constuct a well-formed file name with 'org-directory at the
+	beginning to save some typing later.
+
+	#+begin_src emacs-lisp
+        (defun org-dircat (filename)
+          (concat org-directory "/" filename))
+	#+end_src
+
+******* Capture (quick notes)
+
+	Capture mode allows you to (from anywhere in emacs) to type a
+	shortcut (here "C-c c") that open a little mini buffer to jot
+	a note in. It automatically files this in a configurable
+	location. The idea is if you have some idea or a note that is
+	unrelated to what you are currently working on, you can
+	"capture" it with as little interruption as possible.
+
+********* Setup
+
+	  Point all capture at "$ORGDIR/capture.org" and bind capture to
+	  "C-c c".
+	  
+	  #+begin_src emacs-lisp
+	  (setq org-default-notes-file (org-dircat "capture.org"))
+	  (define-key global-map "\C-cc" 'org-capture)
+	  #+end_src
+
+
+********* Templates
+
+	  A template can be run by "C-c c [template key]".  This
+	  probably need some more work, but this is a reasonable
+	  default set of default templates. Currently [t]odo,
+	  [j]ournal, and [g]rocery list.
+
+	  #+begin_src emacs-lisp
+	  (setq org-capture-templates
+	    '(("t" "Todo" entry (file+headline (org-dircat "capture.org") "Tasks")
+	           "* TODO %?\n  %i\n  %a")
+              ("j" "Journal" entry (file+datetree (org-dircat "journal.org"))
+                   "* %?\nEntered on %U\n  %i\n  %a")
+              ("g" "Grocery" checkitem (file+headline (org-dircat "capture.org") "Grocery")
+                   "  + [ ] %?\n")))
+	  #+end_src
+	  
+	  
+
+******* TODO Setup Refile & cleanup org directory
+******* TODO Work on full major mode support for org code blocks
+******* Fontify for org-babel blocks (deprecated)
+	
+	This makes syntax highlighting function inside individual code
+	blocks in org mode. Edit: Fuck this approach
+
+#+begin_src elisp
+
+;(setq org-src-fontify-natively t)
+
+;(defface org-block-begin-line
+;  '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF")))
+;  "Face used for the line delimiting the begin of source blocks.")
+
+;(defface org-block-background
+;  '((t (:background "#dddddd")))
+;  "Face used for the source block background.")
+
+;(defface org-block-end-line
+;  '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF")))
+;  "Face used for the line delimiting the end of source blocks.")
+
+#+end_src
+
+******* Setup org-babel
+ 
+#+begin_src elisp
+  ; Some initial langauges we want org-babel to support
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (sh . t)
+     (ruby . t)
+     (dot . t)
+     (octave . t)
+     (sqlite . t)
+     ))
+#+end_src
+
+
+***** C mode
+      
+      #+begin_src emacs-lisp
+        (defun sean/c-mode-hook () 
+               (c-set-style "bsd")
+               (setq c-basic-offset 2
+                     indent-tabs-mode t
+                     default-tab-width 2))
+               
+        (add-hook 'c-mode-hook 'sean/c-mode-hook)
+      #+end_src
+
+***** GnuPG
+******* Nothing to config here 
+
+	  
+	  
