@@ -55,21 +55,6 @@ double when I'm on one of my smaller laptops where screen space is premium.
 #+begin_src emacs-lisp
 (load-theme 'wheatgrass)
 #+end_src
-
-*** Default Behavior
-***** Get rid of backup files (Foo.bar~)
-#+begin_src emacs-lisp
-    (setq
-          backup-by-copying t
-	  backup-directory-alist '(("." . "~/.saves")))
-#+end_src
-
-***** Line and column numbers in status bar
-			#+begin_src emacs-lisp
-(linum-mode 0)
-(line-number-mode 1)
-(column-number-mode 1)
-			#+end_src
 *** Package Management
 ***** Configure & Init packages.el
 
@@ -95,6 +80,21 @@ double when I'm on one of my smaller laptops where screen space is premium.
 #+end_src
 
 *** Setup Individual Modes
+
+***** Default Behavior
+******* Get rid of backup files (Foo.bar~)
+#+begin_src emacs-lisp
+    (setq
+          backup-by-copying t
+	  backup-directory-alist '(("." . "~/.saves")))
+#+end_src
+
+******* Line and column numbers in status bar
+			#+begin_src emacs-lisp
+(linum-mode 0)
+(line-number-mode 1)
+(column-number-mode 1)
+			#+end_src
 ***** ido | ido-ubiquitous
 
 #+begin_src emacs-lisp
