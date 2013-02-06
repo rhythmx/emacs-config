@@ -49,9 +49,14 @@ double when I'm on one of my smaller laptops where screen space is premium.
 #+begin_src elisp
   (setq inhibit-startup-message t)
 #+end_src
+			
+***** Theme
+
+#+begin_src emacs-lisp
+(load-theme 'wheatgrass)
+#+end_src
 
 *** Default Behavior
-
 ***** Get rid of backup files (Foo.bar~)
 #+begin_src emacs-lisp
     (setq
@@ -59,37 +64,44 @@ double when I'm on one of my smaller laptops where screen space is premium.
 	  backup-directory-alist '(("." . "~/.saves")))
 #+end_src
 
-***** Interactively Do Things (ido-mode)
+***** Line and column numbers in status bar
+			#+begin_src emacs-lisp
+(linum-mode 0)
+(line-number-mode 1)
+(column-number-mode 1)
+			#+end_src
+*** Package Management
+***** Configure & Init packages.el
 
-******* Initialize ido-mode
 #+begin_src emacs-lisp
-(ido-mode t)
+(require 'package)
+(add-to-list 'package-archives
+             '("elpa" . "http://tromey.com/elpa/"))
+(add-to-list 'package-archives
+             '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
 #+end_src
 
-******* Use ido everywhere
-
-This hooks the 'completing-read' function and adds ido completion to
-basically anything that prompts.
+***** Define packages to be loaded
 
 #+begin_src emacs-lisp
-  (defvar ido-enable-replace-completing-read t
-    "If non-nil, use the ido-completing-read function
-         instead of the builtin completing-read function")
-  (defadvice completing-read
-    (around use-ido-when-possible activate)
-    (if (or (not ido-enable-replace-completing-read)
-            (and (boundp 'ido-cur-list) ido-cur-list))
-        ad-do-it
-      (let ((allcomp (all-completions "" collection predicate)))
-        (if allcomp
-            (setq ad-return-value
-                  (ido-completing-read prompt allcomp nil
-                                       require-match initial-input
-                                       hist def))
-          ad-do-it))))
+(setq sb:package_list
+  '(magit ido-ubiquitous))
+
+(dolist (package sb:package_list)
+  (when (not (package-installed-p package))
+    (package-refresh-contents)
+    (package-install package)))
 #+end_src
 
 *** Setup Individual Modes
+***** ido | ido-ubiquitous
+
+#+begin_src emacs-lisp
+(ido-mode t)
+(ido-ubiquitous-mode)
+#+end_src
+
 ***** Org Mode
 ******* Top level org init
 
@@ -206,8 +218,7 @@ basically anything that prompts.
      (sqlite . t)
      ))
 #+end_src
-
-
+				
 ***** C mode
       
       #+begin_src emacs-lisp
