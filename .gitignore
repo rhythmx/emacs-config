@@ -4,3 +4,4 @@ EmacsInit.el
 eshell
 PrivateConfig.*
 /elpa
+/bookmarks
