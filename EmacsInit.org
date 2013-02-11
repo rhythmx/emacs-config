@@ -29,8 +29,8 @@ by default in Windows. However it's easy enough to install the
 Microsoft TrueType fonts in *nix.
 
 #+begin_src emacs-lisp
-  ;  (set-frame-font "consolas")
-    (set-face-attribute 'default nil :height 105)
+ (set-frame-font "terminus")
+ (set-face-attribute 'default nil :height 90)
 #+end_src
 
 ***** Remove all of the UI
@@ -123,6 +123,7 @@ double when I'm on one of my smaller laptops where screen space is premium.
   '(org-odd-levels-only t))
 #+end_src
 
+
 ******* Org Directory
 	
 	This always points to my file-server. Later on, I'll work on
@@ -169,17 +170,31 @@ double when I'm on one of my smaller laptops where screen space is premium.
 
 	  #+begin_src emacs-lisp
 	  (setq org-capture-templates
-	    '(("t" "Todo" entry (file+headline (org-dircat "capture.org") "Tasks")
+	    '(("t" "Todo" entry (file+headline (org-dircat "capture.org.gpg") "Tasks")
 	           "* TODO %?\n  %i\n  %a")
-              ("j" "Journal" entry (file+datetree (org-dircat "journal.org"))
+              ("l" "Link" entry (file+headline (org-dircat "capture.org.gpg") "Links")
+	           "* TODO %?\n")
+              ("p" "Password" table-line (file+headline (org-dircat "passwords.org.gpg") "Passwords")
+                   "* %?\n")
+              ("j" "Journal" entry (file+datetree (org-dircat "journal.org.gpg"))
                    "* %?\nEntered on %U\n  %i\n  %a")
-              ("g" "Grocery" checkitem (file+headline (org-dircat "capture.org") "Grocery")
+              ("g" "Grocery" checkitem (file+olp (org-dircat "personal.org.gpg") "Shopping Lists" "Groceries")
+                   "  + [ ] %?\n")
+              ("s" "Shopping" checkitem (file+olp (org-dircat "personal.org.gpg") "Shopping Lists" "General")
                    "  + [ ] %?\n")))
 	  #+end_src
 	  
 	  
+********* Refile Targets
 
-******* TODO Setup Refile & cleanup org directory
+	  The capture mode is great for dumping tiny little notes into
+	  bins for later processing, but you should really go back
+	  over than and better organize all that later. This is
+	  "refile". Here we configure certain places and files that
+	  should show up when refiling notes.
+
+	  (... moved to local config ...)
+	 
 ******* TODO Work on full major mode support for org code blocks
 ******* Fontify for org-babel blocks (deprecated)
 	
