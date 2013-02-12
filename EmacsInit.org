@@ -102,6 +102,18 @@ double when I'm on one of my smaller laptops where screen space is premium.
 (ido-ubiquitous-mode)
 #+end_src
 
+***** magit-mode
+
+      
+
+******* Screw the gawdy highlighting of diff
+
+	#+begin_src emacs-lisp
+          (eval-after-load "magit"
+            ;; no highlight
+            (defun magit-highlight-section ())
+	#+end_src
+
 ***** Org Mode
 ******* Top level org init
 
