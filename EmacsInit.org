@@ -111,7 +111,7 @@ double when I'm on one of my smaller laptops where screen space is premium.
 	#+begin_src emacs-lisp
           (eval-after-load "magit"
             ;; no highlight
-            (defun magit-highlight-section ())
+             (setq magit-highlight-section 0))
 	#+end_src
 
 ***** Org Mode
@@ -190,6 +190,8 @@ double when I'm on one of my smaller laptops where screen space is premium.
                    "* %?\n")
               ("j" "Journal" entry (file+datetree (org-dircat "journal.org.gpg"))
                    "* %?\nEntered on %U\n  %i\n  %a")
+              ("q" "Quote" entry (file+headline (org-dircat "quotes.org") "New Quotes")
+                   "* [cite]\n  %?\n")
               ("g" "Grocery" checkitem (file+olp (org-dircat "personal.org.gpg") "Shopping Lists" "Groceries")
                    "  + [ ] %?\n")
               ("s" "Shopping" checkitem (file+olp (org-dircat "personal.org.gpg") "Shopping Lists" "General")
