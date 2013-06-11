@@ -55,6 +55,26 @@ double when I'm on one of my smaller laptops where screen space is premium.
 #+begin_src emacs-lisp
 (load-theme 'wheatgrass)
 #+end_src
+
+***** Fullscreen mode
+
+      Here I define a function that will toggle fullscreen mode
+      on/off. Then I execute it once so that the default is for full
+      screen.
+
+#+begin_src emacs-lisp
+(defun toggle-fullscreen (&optional f)
+  (interactive)
+  (let ((current-value (frame-parameter nil 'fullscreen)))
+    (set-frame-parameter nil 'fullscreen
+      (if (equal 'fullboth current-value)
+        (if (boundp 'old-fullscreen) old-fullscreen nil)
+        (progn (setq old-fullscreen current-value)
+          'fullboth)))))
+(global-set-key [f11] 'toggle-fullscreen)
+(toggle-fullscreen)
+#+end_src
+
 *** Package Management
 ***** Configure & Init packages.el
 
@@ -142,16 +162,18 @@ double when I'm on one of my smaller laptops where screen space is premium.
 	some VPN solution so that this is transparent when I'm on a
 	remote network.
 
-	( .. moved into local config .. )
+	The variable 'sb:doc-directory must be defined before
+	this. Here, it is defined by PrivateConfig.el.
 	
 	Also, while we're at it, let's define a helper function to
-	constuct a well-formed file name with 'org-directory at the
+	constuct a well-formed file name with 'sb:doc-directory at the
 	beginning to save some typing later.
 
-	#+begin_src emacs-lisp
-        (defun org-dircat (filename)
-          (concat org-directory "/" filename))
-	#+end_src
+#+begin_src emacs-lisp
+(defun sb:orgdircat (filename)
+  (concat sb:doc-directory "/org/" filename))
+#+end_src
+
 
 ******* Capture (quick notes)
 
@@ -168,8 +190,9 @@ double when I'm on one of my smaller laptops where screen space is premium.
 	  "C-c c".
 	  
 	  #+begin_src emacs-lisp
-	  (setq org-default-notes-file (org-dircat "capture.org"))
-	  (define-key global-map "\C-cc" 'org-capture)
+	  (setq org-default-notes-file (sb:orgdircat "capture.org"))
+	  (global-set-key "\C-cc" 'org-capture)
+          (global-set-key "\C-ca" 'org-agenda)
 	  #+end_src
 
 
@@ -182,19 +205,21 @@ double when I'm on one of my smaller laptops where screen space is premium.
 
 	  #+begin_src emacs-lisp
 	  (setq org-capture-templates
-	    '(("t" "Todo" entry (file+headline (org-dircat "capture.org.gpg") "Tasks")
+	    '(("t" "Todo" entry (file+headline (sb:orgdircat "capture.org") "Tasks")
 	           "* TODO %?\n  %i\n  %a")
-              ("l" "Link" entry (file+headline (org-dircat "capture.org.gpg") "Links")
+              ("l" "Link" entry (file+headline (sb:orgdircat "capture.org") "Links")
 	           "* TODO %?\n")
-              ("p" "Password" table-line (file+headline (org-dircat "passwords.org.gpg") "Passwords")
+              ("p" "Password" table-line (file+headline (sb:orgdircat "passwords.org.gpg") "Passwords")
                    "* %?\n")
-              ("j" "Journal" entry (file+datetree (org-dircat "journal.org.gpg"))
+              ("j" "Journal" entry (file+datetree (sb:orgdircat "journal.org.gpg"))
                    "* %?\nEntered on %U\n  %i\n  %a")
-              ("q" "Quote" entry (file+headline (org-dircat "quotes.org") "New Quotes")
+              ("i" "InvLim Journal" entry (file+datetree (sb:limdircat "il_journal.org.gpg"))
+                   "* %?\nEntered on %U\n  %i\n  %a")
+              ("q" "Quote" entry (file+headline (sb:orgdircat "quotes.org") "New Quotes")
                    "* [cite]\n  %?\n")
-              ("g" "Grocery" checkitem (file+olp (org-dircat "personal.org.gpg") "Shopping Lists" "Groceries")
+              ("g" "Grocery" checkitem (file+olp (sb:orgdircat "personal.org") "Shopping Lists" "Groceries")
                    "  + [ ] %?\n")
-              ("s" "Shopping" checkitem (file+olp (org-dircat "personal.org.gpg") "Shopping Lists" "General")
+              ("s" "Shopping" checkitem (file+olp (sb:orgdircat "personal.org") "Shopping Lists" "General")
                    "  + [ ] %?\n")))
 	  #+end_src
 	  
@@ -251,17 +276,56 @@ double when I'm on one of my smaller laptops where screen space is premium.
 ***** C mode
       
       #+begin_src emacs-lisp
-        (defun sean/c-mode-hook () 
+        (defun sb:c-mode-hook () 
                (c-set-style "bsd")
-               (setq c-basic-offset 2
-                     indent-tabs-mode t
-                     default-tab-width 2))
+               (setq c-basic-offset 4
+                     indent-tabs-mode nil
+                     default-tab-width 4))
                
-        (add-hook 'c-mode-hook 'sean/c-mode-hook)
+        (add-hook 'c-mode-hook 'sb:c-mode-hook)
+      #+end_src
+***** C++ mode
+      #+begin_src emacs-lisp
+        (defun sb:c++-mode-hook () 
+               (c-set-style "bsd")
+               (setq c-basic-offset 4
+                     indent-tabs-mode nil
+                     default-tab-width 4))
+               
+        (add-hook 'c++-mode-hook 'sb:c++-mode-hook)
       #+end_src
 
 ***** GnuPG
-******* Nothing to config here 
+******* Nothing to config here, except maybe on windows
+***** LaTeX
 
-	  
-	  
+      Don't "word process", edit src.
+
+      
+******* AUCTeX
+
+	    
+#+begin_src emacs-lisp
+
+(load "auctex.el" nil t t)
+(load "preview-latex.el" nil t t)
+
+(require 'flymake)
+
+(defun flymake-get-tex-args (file-name)
+  (list "pdflatex"
+  (list "-file-line-error" "-draftmode" "-interaction=nonstopmode" file-name)))
+
+(add-hook 'LaTeX-mode-hook 'flymake-mode)
+
+(setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
+(setq ispell-dictionary "english") ; this can obviously be set to any language your spell-checking program supports
+
+(add-hook 'LaTeX-mode-hook 'flyspell-mode)
+(add-hook 'LaTeX-mode-hook 'flyspell-buffer)
+
+;(setq TeX-auto-save t)
+;(setq TeX-parse-self t)
+;(setq TeX-save-query nil)
+
+#+end_src
