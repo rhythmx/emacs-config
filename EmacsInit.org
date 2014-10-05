@@ -1,27 +1,92 @@
 * Emacs Config
 
+  QUICKSTART:
+
+#+begin_src bash
+  cd $HOME
+  mv .emacs.d .emacs.d.saved
+  git clone github.com:rhythmx/emacs-config .emacs.d
+#+end_src
+
   Embedded withing the text of this file is my actual emacs
-  configuration.
+  configuration. It uses org-babel mode to document everything inline.
+
 
 *** Personal Information
+***** Set up personalization vars
+
+      Things that currently need to be defined by the private file in
+      order for the rest of this config to function:
+
+#+begin_src emacs-lisp
+; Just load some defaults here for public commits 
+(setq user-full-name "Configure-Me")
+(setq user-mail-addr "plz@configure.me")
+(setq doc-directory "~/Documents")
+#+end_src
 
 ***** Load up personalization from a file
 
       No reason any of this ever needs to get committed to github.
 
-      Things that currently need to be defined by the private file in
-      order for the rest of this config to function:
-
-      * user-full-name
-      * user-mail-address
-      * org-directory
+      If the PrivateConfig.org file exists, it will be evaluated but
+      never commited to source control so it is suitable for storage
+      of more sensitive info.
 
 #+begin_src emacs-lisp
-(org-babel-load-file "~/.emacs.d/PrivateConfig.org")
+(if (file-readable-p "~/.emacs.d/PrivateConfig.org")
+    (org-babel-load-file "~/.emacs.d/PrivateConfig.org"))
 #+end_src
 
-*** Appearance
+*** Package Management
 
+***** Configure & Init packages.el
+
+      Set up the package menagement system and add some of the more
+      popular public package repositories. This should sync with the
+      remote servers to ensure package lists are up-to-date.
+
+#+begin_src emacs-lisp
+(require 'package)
+
+; ELPA is the official emacs repo (iirc?)
+(add-to-list 'package-archives
+             '("elpa" . "http://tromey.com/elpa/"))
+
+(add-to-list 'package-archives
+             '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/"))
+
+; Marmalade is also very popular
+(add-to-list 'package-archives
+             '("marmalade" . "http://marmalade-repo.org/packages/"))
+
+(package-initialize)
+#+end_src
+
+***** Automatically install required packages
+
+      You can modify the list below to include any packages that may
+      be required later on during initialization. If any in the list
+      are mising, they will be automatically installed.
+
+#+begin_src emacs-lisp
+(setq sb:package_list
+  '(
+      cyberpunk-theme
+      magit 
+      ido-ubiquitous
+   )
+)
+
+(dolist (package sb:package_list)
+  (when (not (package-installed-p package))
+    (package-refresh-contents)
+    (package-install package)))
+#+end_src
+
+
+*** Appearance
+    
 ***** Select a better font. 
 
 Consolas is my favorite, but it's only available
@@ -29,8 +94,26 @@ by default in Windows. However it's easy enough to install the
 Microsoft TrueType fonts in *nix.
 
 #+begin_src emacs-lisp
- (set-frame-font "terminus")
- (set-face-attribute 'default nil :height 90)
+; List of fonts in order of preference
+(setq sb:preferred-fonts 
+  '(
+     "Consolas" 
+     "Courier New" 
+     "terminus" 
+  )
+)
+
+(defun sb:set-font (fontlist)
+  (if (find-font  (font-spec :name (car fontlist)))
+
+      ; Font exists, so set it
+      (progn (set-frame-font (car fontlist))
+             (set-face-attribute 'default nil :height 120))
+
+      ; Font not found, move on to next
+      (progn (sb:set-font (cdr fontlist)))))
+
+(sb:set-font sb:preferred-fonts)
 #+end_src
 
 ***** Remove all of the UI
@@ -50,17 +133,18 @@ double when I'm on one of my smaller laptops where screen space is premium.
   (setq inhibit-startup-message t)
 #+end_src
 			
-***** Theme
+***** Default Theme
+
+      You can set per-mode themes later on
 
 #+begin_src emacs-lisp
-(load-theme 'wheatgrass)
+(load-theme 'cyberpunk t)
 #+end_src
 
-***** Fullscreen mode
+***** Fullscreen mode [F11 key]
 
       Here I define a function that will toggle fullscreen mode
-      on/off. Then I execute it once so that the default is for full
-      screen.
+      on/off. 
 
 #+begin_src emacs-lisp
 (defun toggle-fullscreen (&optional f)
@@ -72,37 +156,19 @@ double when I'm on one of my smaller laptops where screen space is premium.
         (progn (setq old-fullscreen current-value)
           'fullboth)))))
 (global-set-key [f11] 'toggle-fullscreen)
-(toggle-fullscreen)
-#+end_src
 
-*** Package Management
-***** Configure & Init packages.el
-
-#+begin_src emacs-lisp
-(require 'package)
-(add-to-list 'package-archives
-             '("elpa" . "http://tromey.com/elpa/"))
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/"))
-(package-initialize)
-#+end_src
-
-***** Define packages to be loaded
-
-#+begin_src emacs-lisp
-(setq sb:package_list
-  '(magit ido-ubiquitous))
-
-(dolist (package sb:package_list)
-  (when (not (package-installed-p package))
-    (package-refresh-contents)
-    (package-install package)))
+; Uncomment to auto-fullscreen on startup
+;(toggle-fullscreen)
 #+end_src
 
 *** Setup Individual Modes
 
 ***** Default Behavior
 ******* Get rid of backup files (Foo.bar~)
+
+	This forces all backup files into a single system-wide
+	directory so that they don't pollute the whole filesytem.
+
 #+begin_src emacs-lisp
     (setq
           backup-by-copying t
@@ -117,14 +183,14 @@ double when I'm on one of my smaller laptops where screen space is premium.
 			#+end_src
 ***** ido | ido-ubiquitous
 
+      IDO MODE IS THE SHIT. (aka interactive auto-completion for find-file, M-x, etc)
+
 #+begin_src emacs-lisp
 (ido-mode t)
 (ido-ubiquitous-mode)
 #+end_src
 
 ***** magit-mode
-
-      
 
 ******* Screw the gawdy highlighting of diff
 
@@ -144,6 +210,7 @@ double when I'm on one of my smaller laptops where screen space is premium.
 
 ******* Org Appearance
 ********* Hide leading stars in org documents (clean mode)
+
 #+begin_src emacs-lisp
 (custom-set-variables
   '(org-hide-leading-stars t))
@@ -154,7 +221,7 @@ double when I'm on one of my smaller laptops where screen space is premium.
 (custom-set-variables
   '(org-odd-levels-only t))
 #+end_src
-
+	  
 
 ******* Org Directory
 	
@@ -162,7 +229,7 @@ double when I'm on one of my smaller laptops where screen space is premium.
 	some VPN solution so that this is transparent when I'm on a
 	remote network.
 
-	The variable 'sb:doc-directory must be defined before
+	The variable 'doc-directory must be defined before
 	this. Here, it is defined by PrivateConfig.el.
 	
 	Also, while we're at it, let's define a helper function to
@@ -171,7 +238,7 @@ double when I'm on one of my smaller laptops where screen space is premium.
 
 #+begin_src emacs-lisp
 (defun sb:orgdircat (filename)
-  (concat sb:doc-directory "/org/" filename))
+  (concat doc-directory "/org/" filename))
 #+end_src
 
 
@@ -195,7 +262,7 @@ double when I'm on one of my smaller laptops where screen space is premium.
           (global-set-key "\C-ca" 'org-agenda)
 	  #+end_src
 
-
+	  
 ********* Templates
 
 	  A template can be run by "C-c c [template key]".  This
@@ -212,8 +279,6 @@ double when I'm on one of my smaller laptops where screen space is premium.
               ("p" "Password" table-line (file+headline (sb:orgdircat "passwords.org.gpg") "Passwords")
                    "* %?\n")
               ("j" "Journal" entry (file+datetree (sb:orgdircat "journal.org.gpg"))
-                   "* %?\nEntered on %U\n  %i\n  %a")
-              ("i" "InvLim Journal" entry (file+datetree (sb:limdircat "il_journal.org.gpg"))
                    "* %?\nEntered on %U\n  %i\n  %a")
               ("q" "Quote" entry (file+headline (sb:orgdircat "quotes.org") "New Quotes")
                    "* [cite]\n  %?\n")
@@ -304,25 +369,26 @@ double when I'm on one of my smaller laptops where screen space is premium.
       
 ******* AUCTeX
 
+	Disabled for now
 	    
 #+begin_src emacs-lisp
 
-(load "auctex.el" nil t t)
-(load "preview-latex.el" nil t t)
+;(load "auctex.el" nil t t)
+;(load "preview-latex.el" nil t t)
 
-(require 'flymake)
+;(require 'flymake)
 
-(defun flymake-get-tex-args (file-name)
-  (list "pdflatex"
-  (list "-file-line-error" "-draftmode" "-interaction=nonstopmode" file-name)))
+;(defun flymake-get-tex-args (file-name)
+;  (list "pdflatex"
+;  (list "-file-line-error" "-draftmode" "-interaction=nonstopmode" file-name)))
 
-(add-hook 'LaTeX-mode-hook 'flymake-mode)
+;(add-hook 'LaTeX-mode-hook 'flymake-mode)
 
-(setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
-(setq ispell-dictionary "english") ; this can obviously be set to any language your spell-checking program supports
+;(setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
+;(setq ispell-dictionary "english") ; this can obviously be set to any language your spell-checking program supports
 
-(add-hook 'LaTeX-mode-hook 'flyspell-mode)
-(add-hook 'LaTeX-mode-hook 'flyspell-buffer)
+;(add-hook 'LaTeX-mode-hook 'flyspell-mode)
+;(add-hook 'LaTeX-mode-hook 'flyspell-buffer)
 
 ;(setq TeX-auto-save t)
 ;(setq TeX-parse-self t)
