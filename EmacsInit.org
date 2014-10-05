@@ -84,7 +84,6 @@
     (package-install package)))
 #+end_src
 
-
 *** Appearance
     
 ***** Select a better font. 
