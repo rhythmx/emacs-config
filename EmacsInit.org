@@ -99,6 +99,7 @@ Microsoft TrueType fonts in *nix.
      "Consolas" 
      "Courier New" 
      "terminus" 
+     "DejaVu Sans Mono"
   )
 )
 
@@ -112,7 +113,8 @@ Microsoft TrueType fonts in *nix.
       ; Font not found, move on to next
       (progn (sb:set-font (cdr fontlist)))))
 
-(sb:set-font sb:preferred-fonts)
+(when (display-graphic-p)
+      (sb:set-font sb:preferred-fonts))
 #+end_src
 
 ***** Remove all of the UI
