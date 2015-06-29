@@ -405,3 +405,22 @@ double when I'm on one of my smaller laptops where screen space is premium.
 ;(setq TeX-save-query nil)
 
 #+end_src
+
+***** Haskell Mode
+
+      
+******* Not totally sure what doc mode is yet... sounds like a good enough idea
+
+	#+begin_src emacs-lisp
+          (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+	#+end_src
+
+******* Indentation
+
+	#+begin_src emacs-lisp
+          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+          (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent) 
+	#+end_src
+
+***** Others
