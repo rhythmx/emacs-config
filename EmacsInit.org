@@ -203,6 +203,13 @@ double when I'm on one of my smaller laptops where screen space is premium.
              (setq magit-highlight-section 0))
 	#+end_src
 
+******* Magit wants to hide release notes via elisp now?
+
+	#+begin_src emacs-lisp
+	  (setq magit-last-seen-setup-instructions "1.4.0")
+	#+end_src
+
+******* 
 ***** Org Mode
 ******* Top level org init
 
