@@ -75,6 +75,8 @@
       cyberpunk-theme
       magit 
       ido-ubiquitous
+      lua-mode
+      haskell-mode
    )
 )
 
