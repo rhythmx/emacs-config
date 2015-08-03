@@ -77,6 +77,7 @@
       ido-ubiquitous
       lua-mode
       haskell-mode
+      markdown-mode
    )
 )
 
@@ -423,4 +424,23 @@ double when I'm on one of my smaller laptops where screen space is premium.
           ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent) 
 	#+end_src
 
+***** Markdown 
+
+      
+******* Setup autoload
+
+      (this should probably happen by default already anyway, but hey...)
+
+      #+begin_src emacs-lisp
+          (autoload 'markdown-mode "markdown-mode"
+                    "Major mode for editing Markdown files" t)
+      #+end_src
+
+******* Use markdown mode for *.md files (and others)
+
+	#+begin_src emacs-lisp
+            (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+            (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+	#+end_src
 ***** Others
+      
