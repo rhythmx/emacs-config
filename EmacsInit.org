@@ -75,6 +75,9 @@
       cyberpunk-theme
       magit 
       ido-ubiquitous
+      lua-mode
+      haskell-mode
+      markdown-mode
    )
 )
 
@@ -201,6 +204,13 @@ double when I'm on one of my smaller laptops where screen space is premium.
              (setq magit-highlight-section 0))
 	#+end_src
 
+******* Magit wants to hide release notes via elisp now?
+
+	#+begin_src emacs-lisp
+	  (setq magit-last-seen-setup-instructions "1.4.0")
+	#+end_src
+
+******* 
 ***** Org Mode
 ******* Top level org init
 
@@ -421,3 +431,41 @@ double when I'm on one of my smaller laptops where screen space is premium.
 ;(setq TeX-save-query nil)
 
 #+end_src
+
+***** Haskell Mode
+
+      
+******* Not totally sure what doc mode is yet... sounds like a good enough idea
+
+	#+begin_src emacs-lisp
+          (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+	#+end_src
+
+******* Indentation
+
+	#+begin_src emacs-lisp
+          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+          (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent) 
+	#+end_src
+
+***** Markdown 
+
+      
+******* Setup autoload
+
+      (this should probably happen by default already anyway, but hey...)
+
+      #+begin_src emacs-lisp
+          (autoload 'markdown-mode "markdown-mode"
+                    "Major mode for editing Markdown files" t)
+      #+end_src
+
+******* Use markdown mode for *.md files (and others)
+
+	#+begin_src emacs-lisp
+            (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+            (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+	#+end_src
+***** Others
+      
