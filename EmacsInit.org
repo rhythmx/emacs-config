@@ -1,4 +1,4 @@
-* Emacs Config
+ * Emacs Config
 
   QUICKSTART:
 
@@ -360,9 +360,34 @@ double when I'm on one of my smaller laptops where screen space is premium.
                
         (add-hook 'c++-mode-hook 'sb:c++-mode-hook)
       #+end_src
+***** Assembler Mode
+#begin_src emacs-lisp
+	  (defun sb:asm-mode-hook ()
+	         (setq c-basic-offset 4
+                   indent-tabs-mode nil
+                   default-tab-width 4
+		   tab-stop-list (quote (4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 
+	            64 68 72 76 80 84 88 92 96 100 104 108 112 116 120))
+          ))
+      ;      (add-hook 'asm-mode-hook 'sb:asm-mode-hook)
+#end_src
+	  
+***** GnuPG / EasyPG
+******* GPG Agent Issues
+	
+ 	Emacs and GPG2 don't play nicely together. Almost impossible
+ 	to get a working config going for plain terminal mode and
+ 	automatic-decryption.
 
-***** GnuPG
-******* Nothing to config here, except maybe on windows
+	Except... I have no idea how to do this :(
+
+	Emacs and GPG2/pinentry can not share a tty. Also, pinentry is
+	impossible to disable from the command line in GPG2.
+
+    #+begin_src emacs-lisp
+
+    #+end_src
+
 ***** LaTeX
 
       Don't "word process", edit src.
