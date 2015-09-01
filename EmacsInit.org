@@ -438,6 +438,13 @@ double when I'm on one of my smaller laptops where screen space is premium.
           ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent) 
 	#+end_src
 
+***** Agda Mode
+
+      #+begin_src emacs-lisp
+        (load-file (let ((coding-system-for-read 'utf-8))
+                        (shell-command-to-string "agda-mode locate")))
+      #+end_src
+
 ***** Markdown 
 
       
