@@ -1,4 +1,4 @@
- * Emacs Config
+* Emacs Config
 
   QUICKSTART:
 
@@ -225,144 +225,37 @@ double when I'm on one of my smaller laptops where screen space is premium.
 	#+end_src
 
 ******* 
-***** Org Mode
-******* Top level org init
+***** Sean's Org System (configures org-mode too)
+      
+      Load org system config from file share, if present.
+      
+    #+begin_src emacs-lisp
 
-#+begin_src
-(require 'org-install)
-#+end_src
+      ; Determine root dir of org system based on system type (because
+      ; windows paths are retarded)
 
+      (cond ((eq system-type 'gnu/linux) 
+             (setq sb:orgdir "/storage/organizer"))
+            ((eq system-type 'windows-nt)
+             (setq sb:orgdir "Z:\\organizer"))
+            (t
+             (setq sb:orgdir "/")))
 
-******* Org Appearance
-********* Hide leading stars in org documents (clean mode)
+      ; Define some helper functions to keep path specs small
 
-#+begin_src emacs-lisp
-(custom-set-variables
-  '(org-hide-leading-stars t))
-#+end_src
+      (defun sb:orgdircat (filename)
+        (concat (file-name-as-directory sb:orgdir)  filename))
 
-********* Only use odd numbered levels
-#+begin_src emacs-lisp
-(custom-set-variables
-  '(org-odd-levels-only t))
-#+end_src
-	  
+      ; Check that guessed paths are sane, assume connectivity problem if not
 
-******* Org Directory
-	
-	This always points to my file-server. Later on, I'll work on
-	some VPN solution so that this is transparent when I'm on a
-	remote network.
+      (if (and (file-directory-p sb:orgdir)
+               (file-exists-p (sb:orgdircat "config.org")))
+          (org-babel-load-file (sb:orgdircat "config.org"))
+          (error "File server does not seem to be accessible"))
 
-	The variable 'doc-directory must be defined before
-	this. Here, it is defined by PrivateConfig.el.
-	
-	Also, while we're at it, let's define a helper function to
-	constuct a well-formed file name with 'sb:doc-directory at the
-	beginning to save some typing later.
-
-#+begin_src emacs-lisp
-(defun sb:orgdircat (filename)
-  (concat doc-directory "/org/" filename))
-#+end_src
+    #+end_src
 
 
-******* Capture (quick notes)
-
-	Capture mode allows you to (from anywhere in emacs) to type a
-	shortcut (here "C-c c") that open a little mini buffer to jot
-	a note in. It automatically files this in a configurable
-	location. The idea is if you have some idea or a note that is
-	unrelated to what you are currently working on, you can
-	"capture" it with as little interruption as possible.
-
-********* Setup
-
-	  Point all capture at "$ORGDIR/capture.org" and bind capture to
-	  "C-c c".
-	  
-	  #+begin_src emacs-lisp
-	  (setq org-default-notes-file (sb:orgdircat "capture.org"))
-	  (global-set-key "\C-cc" 'org-capture)
-          (global-set-key "\C-ca" 'org-agenda)
-	  #+end_src
-
-	  
-********* Templates
-
-	  A template can be run by "C-c c [template key]".  This
-	  probably need some more work, but this is a reasonable
-	  default set of default templates. Currently [t]odo,
-	  [j]ournal, and [g]rocery list.
-
-	  #+begin_src emacs-lisp
-	  (setq org-capture-templates
-	    '(("t" "Todo" entry (file+headline (sb:orgdircat "capture.org") "Tasks")
-	           "* TODO %?\n  %i\n  %a")
-              ("l" "Link" entry (file+headline (sb:orgdircat "capture.org") "Links")
-	           "* TODO %?\n")
-              ("p" "Password" table-line (file+headline (sb:orgdircat "passwords.org.gpg") "Passwords")
-                   "* %?\n")
-              ("j" "Journal" entry (file+datetree (sb:orgdircat "journal.org.gpg"))
-                   "* %?\nEntered on %U\n  %i\n  %a")
-              ("q" "Quote" entry (file+headline (sb:orgdircat "quotes.org") "New Quotes")
-                   "* [cite]\n  %?\n")
-              ("g" "Grocery" checkitem (file+olp (sb:orgdircat "personal.org") "Shopping Lists" "Groceries")
-                   "  + [ ] %?\n")
-              ("s" "Shopping" checkitem (file+olp (sb:orgdircat "personal.org") "Shopping Lists" "General")
-                   "  + [ ] %?\n")))
-	  #+end_src
-	  
-	  
-********* Refile Targets
-
-	  The capture mode is great for dumping tiny little notes into
-	  bins for later processing, but you should really go back
-	  over than and better organize all that later. This is
-	  "refile". Here we configure certain places and files that
-	  should show up when refiling notes.
-
-	  (... moved to local config ...)
-	 
-******* TODO Work on full major mode support for org code blocks
-******* Fontify for org-babel blocks (deprecated)
-	
-	This makes syntax highlighting function inside individual code
-	blocks in org mode. Edit: Fuck this approach
-
-#+begin_src elisp
-
-;(setq org-src-fontify-natively t)
-
-;(defface org-block-begin-line
-;  '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF")))
-;  "Face used for the line delimiting the begin of source blocks.")
-
-;(defface org-block-background
-;  '((t (:background "#dddddd")))
-;  "Face used for the source block background.")
-
-;(defface org-block-end-line
-;  '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF")))
-;  "Face used for the line delimiting the end of source blocks.")
-
-#+end_src
-
-******* Setup org-babel
- 
-#+begin_src elisp
-  ; Some initial langauges we want org-babel to support
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '(
-     (sh . t)
-     (ruby . t)
-     (dot . t)
-     (octave . t)
-     (sqlite . t)
-     ))
-#+end_src
-				
 ***** C mode
       
       #+begin_src emacs-lisp
