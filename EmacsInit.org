@@ -361,6 +361,14 @@ double when I'm on one of my smaller laptops where screen space is premium.
       #+begin_src emacs-lisp
         (load-file (let ((coding-system-for-read 'utf-8))
                         (shell-command-to-string "agda-mode locate")))
+
+        (custom-set-variables
+          '(agda2-include-dirs 
+            '( "/home/sean/code/agda-stdlib/src"
+               "/home/sean/.cabal/share/x86_64-linux-ghc-7.10.1/Agda-2.4.2.3/lib/prim/"
+               "/home/sean/code/agda-prelude/src"
+               "." )))
+
       #+end_src
 
 ***** Markdown 
