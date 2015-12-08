@@ -359,10 +359,9 @@ double when I'm on one of my smaller laptops where screen space is premium.
 ***** Agda Mode
 
       #+begin_src emacs-lisp
-        (ignore-errors
+        (if (executable-find "agda-mode")
           (load-file (let ((coding-system-for-read 'utf-8))
-                        (shell-command-to-string "agda-mode locate")))
-        )
+                        (shell-command-to-string "agda-mode locate"))))
 
         (custom-set-variables
           '(agda2-include-dirs 
