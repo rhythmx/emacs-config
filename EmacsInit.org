@@ -1,6 +1,7 @@
-* Emacs Config
+#+TITLE: Sean's Emacs Configuration
 
-  QUICKSTART:
+
+* Quick Start
 
 #+begin_src bash
   cd $HOME
@@ -12,223 +13,222 @@
   configuration. It uses org-babel mode to document everything inline.
 
 
-*** Personal Information
-***** Set up personalization vars
+* Personal Information
 
-      Things that currently need to be defined by the private file in
-      order for the rest of this config to function:
+  Some emacs features need access to sensitive data like passwords,
+  keys, etc. Since this configuration is being posted publicly, fake
+  values are inserted later overridden by a file that will never be
+  committed into source control.
 
-#+begin_src emacs-lisp
-; Just load some defaults here for public commits 
-(setq user-full-name "Configure-Me")
-(setq user-mail-addr "plz@configure.me")
-(setq doc-directory "~/Documents")
-#+end_src
 
-***** Load up personalization from a file
 
-      No reason any of this ever needs to get committed to github.
+*** Set up personalization vars
+
+    #+begin_src emacs-lisp
+      ;; Just load some defaults here for public commits 
+      (setq user-full-name "Configure-Me")
+      (setq user-mail-addr "plz@configure.me")
+      (setq browse-url-generic-program "firefox")
+    #+end_src
+
+*** Load up personalization from a file
 
       If the PrivateConfig.org file exists, it will be evaluated but
       never commited to source control so it is suitable for storage
       of more sensitive info.
 
-#+begin_src emacs-lisp
-(if (file-readable-p "~/.emacs.d/PrivateConfig.org")
-    (org-babel-load-file "~/.emacs.d/PrivateConfig.org"))
-#+end_src
+    #+begin_src emacs-lisp
+      (if (file-readable-p "~/.emacs.d/PrivateConfig.org")
+          (org-babel-load-file "~/.emacs.d/PrivateConfig.org"))
+    #+end_src
 
-*** Package Management
+* Package Management
 
-***** Configure & Init packages.el
+*** Configure & Init packages.el
 
-      Set up the package menagement system and add some of the more
-      popular public package repositories. This should sync with the
-      remote servers to ensure package lists are up-to-date.
+    Set up the package menagement system and add some of the more
+    popular public package repositories. This should sync with the
+    remote servers to ensure package lists are up-to-date.
 
-#+begin_src emacs-lisp
-(require 'package)
+    #+begin_src emacs-lisp
+      (require 'package)
 
-; ELPA is the official emacs repo (iirc?)
-(add-to-list 'package-archives
-             '("elpa" . "http://tromey.com/elpa/"))
+      (add-to-list 'package-archives
+                   '("melpa" . "http://melpa.milkbox.net/packages/"))
 
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/"))
+      ;; Some other package sources
+      ;; '("elpa" . "http://tromey.com/elpa/") ;; ELPA is the official emacs repo (iirc?)
+      ;; '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
+      ;; '("marmalade" . "http://marmalade-repo.org/packages/")
 
-; Marmalade is also very popular
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/"))
+      (package-initialize)
+    #+end_src
 
-(package-initialize)
-#+end_src
+*** Automatically install required packages
 
-***** Automatically install required packages
+    You can modify the list below to include any packages that may be
+    required later on during initialization. If any in the list are
+    mising, they will be automatically installed.
 
-      You can modify the list below to include any packages that may
-      be required later on during initialization. If any in the list
-      are mising, they will be automatically installed.
+    #+begin_src emacs-lisp
+      (setq sb:package_list '(zenburn-theme
+                              cyberpunk-theme
+                              solarized-theme
+                              magit 
+                              lua-mode
+                              haskell-mode
+                              markdown-mode
+                              helm
+                              projectile
+                              helm-projectile
+                              helm-gtags
+                              sr-speedbar
+                              cmake-mode
+                              company))
 
-#+begin_src emacs-lisp
-(setq sb:package_list
-  '(
-      cyberpunk-theme
-      magit 
-      ido-ubiquitous
-      lua-mode
-      haskell-mode
-      markdown-mode
-   )
-)
+      (dolist (package sb:package_list)
+        (when (not (package-installed-p package))
+          (package-refresh-contents)
+          (package-install package)))
+    #+end_src
 
-(dolist (package sb:package_list)
-  (when (not (package-installed-p package))
-    (package-refresh-contents)
-    (package-install package)))
-#+end_src
+*** Load PATH from .bashrc (if it makes sense on current platform)
 
-***** Load PATH from .bashrc (if it makes sense on current platform)
-
-      #+begin_src emacs-lisp
+    #+begin_src emacs-lisp
       (defun set-exec-path-from-shell-PATH ()
-             (let ((path-from-shell (replace-regexp-in-string
-                                     "[ \t\n]*$"
-                                     ""
-                                     (shell-command-to-string "$SHELL --login -c 'echo $PATH'"))))
-                  (setenv "PATH" path-from-shell)
-                  (setq eshell-path-env path-from-shell) ; for eshell users
-                  (setq exec-path (split-string path-from-shell path-separator))))
+        (let ((path-from-shell (replace-regexp-in-string
+                                "[ \t\n]*$"
+                                ""
+                                (shell-command-to-string "$SHELL --login -c 'echo $PATH'"))))
+          (setenv "PATH" path-from-shell)
+          (setq eshell-path-env path-from-shell) ; for eshell users
+          (setq exec-path (split-string path-from-shell path-separator))))
+
       (if (or (eq system-type 'darwin) (eq system-type 'gnu/linux))
           (set-exec-path-from-shell-PATH)) 
-      #+end_src
-*** Appearance
+    #+end_src
+
+* Appearance
+  
+*** Select a better font. 
+
+    Consolas is my favorite, but it's only available by default in
+    Windows. However it's easy enough to install the Microsoft
+    TrueType fonts in *nix.
+
+    #+begin_src emacs-lisp
+      ; List of fonts in order of preference
+      (setq sb:preferred-fonts 
+        '(
+           "Consolas" 
+           "Courier New" 
+           "terminus" 
+           "DejaVu Sans Mono"
+        )
+      )
+
+      (defun sb:set-font (fontlist)
+        (if (find-font  (font-spec :name (car fontlist)))
+
+            ; Font exists, so set it
+            (progn (set-frame-font (car fontlist))
+                   (set-face-attribute 'default nil :height 120))
+
+            ; Font not found, move on to next
+            (progn (sb:set-font (cdr fontlist)))))
+
+      (when (display-graphic-p)
+            (sb:set-font sb:preferred-fonts))
+    #+end_src
+
+*** Remove all of the UI
+
+    I don't like looking at a bunch of menus and scrollbars. This goes
+    double when I'm on one of my smaller laptops where screen space is
+    premium.
+
+    #+begin_src emacs-lisp
+      (scroll-bar-mode 0)
+      (menu-bar-mode 0)
+      (tool-bar-mode 0)
+    #+end_src
     
-***** Select a better font. 
+*** Default Theme
 
-Consolas is my favorite, but it's only available
-by default in Windows. However it's easy enough to install the
-Microsoft TrueType fonts in *nix.
+    You can set per-mode themes later on
 
-#+begin_src emacs-lisp
-; List of fonts in order of preference
-(setq sb:preferred-fonts 
-  '(
-     "Consolas" 
-     "Courier New" 
-     "terminus" 
-     "DejaVu Sans Mono"
-  )
-)
+    #+begin_src emacs-lisp
+      (load-theme 'solarized-dark t)
+    #+end_src
 
-(defun sb:set-font (fontlist)
-  (if (find-font  (font-spec :name (car fontlist)))
+*** Fullscreen mode [F11 key]
 
-      ; Font exists, so set it
-      (progn (set-frame-font (car fontlist))
-             (set-face-attribute 'default nil :height 120))
+    Here I define a function that will toggle fullscreen mode on/off.
 
-      ; Font not found, move on to next
-      (progn (sb:set-font (cdr fontlist)))))
+    #+begin_src emacs-lisp
+      (defun toggle-fullscreen (&optional f)
+        (interactive)
+        (let ((current-value (frame-parameter nil 'fullscreen)))
+          (set-frame-parameter nil 'fullscreen
+            (if (equal 'fullboth current-value)
+              (if (boundp 'old-fullscreen) old-fullscreen nil)
+              (progn (setq old-fullscreen current-value)
+                'fullboth)))))
+      (global-set-key [f11] 'toggle-fullscreen)
 
-(when (display-graphic-p)
-      (sb:set-font sb:preferred-fonts))
-#+end_src
+      ; Uncomment to auto-fullscreen on startup
+      ;(toggle-fullscreen)
+    #+end_src
 
-***** Remove all of the UI
+*** Transparency 
 
-I don't like looking at a bunch of menus and scrollbars. This goes
-double when I'm on one of my smaller laptops where screen space is premium.
+    #+begin_src emacs-lisp
+      (set-frame-parameter (selected-frame) 'alpha '(93 50))
+    #+end_src
 
-#+begin_src emacs-lisp
-    (scroll-bar-mode 0)
-    (menu-bar-mode 0)
-    (tool-bar-mode 0)
-#+end_src
+*** Show line and column numbers in status bar
+    #+begin_src emacs-lisp
+      (linum-mode 0)
+      (line-number-mode 1)
+      (column-number-mode 1)
+    #+end_src
+* Default Emacs Behaviors
+*** No startup screen
 
-***** No startup screen
+    #+begin_src emacs-lisp
+      (setq inhibit-startup-screen t)
+    #+end_src
 
-#+begin_src elisp
-  (setq inhibit-startup-message t)
-#+end_src
-			
-***** Default Theme
+*** Get rid of annoying backup files (Foo.bar~)
 
-      You can set per-mode themes later on
+    This forces all backup files into a single system-wide directory
+    so that they don't pollute the whole filesytem.
 
-#+begin_src emacs-lisp
-(load-theme 'cyberpunk t)
-#+end_src
+    #+begin_src emacs-lisp
+      (setq backup-by-copying t
+	    backup-directory-alist '(("." . "~/.saves")))
+    #+end_src
 
-***** Fullscreen mode [F11 key]
 
-      Here I define a function that will toggle fullscreen mode
-      on/off. 
+* Setup Modes
 
-#+begin_src emacs-lisp
-(defun toggle-fullscreen (&optional f)
-  (interactive)
-  (let ((current-value (frame-parameter nil 'fullscreen)))
-    (set-frame-parameter nil 'fullscreen
-      (if (equal 'fullboth current-value)
-        (if (boundp 'old-fullscreen) old-fullscreen nil)
-        (progn (setq old-fullscreen current-value)
-          'fullboth)))))
-(global-set-key [f11] 'toggle-fullscreen)
 
-; Uncomment to auto-fullscreen on startup
-;(toggle-fullscreen)
-#+end_src
+*** Helm (auto complete for most prompts)
 
-*** Setup Individual Modes
+    A good intro to helm is available at
+    http://tuhdo.github.io/helm-intro.html
 
-***** Default Behavior
-******* Get rid of backup files (Foo.bar~)
+    #+begin_src emacs-lisp
+      (require 'helm-config)
+      (helm-mode 1)
+    #+end_src
 
-	This forces all backup files into a single system-wide
-	directory so that they don't pollute the whole filesytem.
-
-#+begin_src emacs-lisp
-    (setq
-          backup-by-copying t
-	  backup-directory-alist '(("." . "~/.saves")))
-#+end_src
-
-******* Line and column numbers in status bar
-			#+begin_src emacs-lisp
-(linum-mode 0)
-(line-number-mode 1)
-(column-number-mode 1)
-			#+end_src
-***** ido | ido-ubiquitous
-
-      IDO MODE IS THE SHIT. (aka interactive auto-completion for find-file, M-x, etc)
-
-#+begin_src emacs-lisp
-(ido-mode t)
-(ido-ubiquitous-mode)
-#+end_src
-
-***** magit-mode
-
-******* Screw the gawdy highlighting of diff
-
-	#+begin_src emacs-lisp
-          (eval-after-load "magit"
-            ;; no highlight
-             (setq magit-highlight-section 0))
-	#+end_src
-
-******* Magit wants to hide release notes via elisp now?
-
-	#+begin_src emacs-lisp
-	  (setq magit-last-seen-setup-instructions "1.4.0")
-	#+end_src
-
-******* 
-***** Sean's Org System (configures org-mode too)
-      
-      Load org system config from file share, if present.
-      
+*** Org System (Notes/Agendas/Journal/Wiki)
+    
+    Load org system config from file share, if present. One day I
+    might make an example layout and commit that publicly too. Until
+    then, just use your imaginations ;)
+    
     #+begin_src emacs-lisp
 
       ; Determine root dir of org system based on system type (because
@@ -251,144 +251,290 @@ double when I'm on one of my smaller laptops where screen space is premium.
       (if (and (file-directory-p sb:orgdir)
                (file-exists-p (sb:orgdircat "config.org")))
           (org-babel-load-file (sb:orgdircat "config.org"))
-          (error "File server does not seem to be accessible"))
+        (warn "File server does not seem to be accessible"))
 
     #+end_src
 
+*** Development Environment
 
-***** C mode
-      
+***** Global settings
+
+******* Spaces, not tabs
+		#+begin_src emacs-lisp
+          (setq indent-tabs-mode nil)
+		#+end_src
+***** Projectile (Project Management)
+
       #+begin_src emacs-lisp
-        (defun sb:c-mode-hook () 
-               (c-set-style "bsd")
-               (setq c-basic-offset 4
-                     indent-tabs-mode nil
-                     default-tab-width 4))
-               
-        (add-hook 'c-mode-hook 'sb:c-mode-hook)
+      	(projectile-global-mode)
+      	(setq projectile-completion-system 'helm)
+      	(helm-projectile-on)
       #+end_src
-***** C++ mode
-      #+begin_src emacs-lisp
-        (defun sb:c++-mode-hook () 
-               (c-set-style "bsd")
-               (setq c-basic-offset 4
-                     indent-tabs-mode nil
-                     default-tab-width 4))
-               
-        (add-hook 'c++-mode-hook 'sb:c++-mode-hook)
-      #+end_src
-***** Assembler Mode
-#begin_src emacs-lisp
-	  (defun sb:asm-mode-hook ()
-	         (setq c-basic-offset 4
-                   indent-tabs-mode nil
-                   default-tab-width 4
-		   tab-stop-list (quote (4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 
-	            64 68 72 76 80 84 88 92 96 100 104 108 112 116 120))
-          ))
-      ;      (add-hook 'asm-mode-hook 'sb:asm-mode-hook)
-#end_src
+
+***** GTags (Source navigation)
 	  
-***** GnuPG / EasyPG
-******* GPG Agent Issues
-	
- 	Emacs and GPG2 don't play nicely together. Almost impossible
- 	to get a working config going for plain terminal mode and
- 	automatic-decryption.
+	  #+begin_src emacs-lisp
+      	(setq helm-gtags-ignore-case t
+              helm-gtags-auto-update t
+              helm-use-input-at-cursor t
+              helm-gtags-pulse-at-cursor t
+              helm-gtags-prefix-key "\C-cg"
+              helm-gtags-suggested-key-mapping t)
 
-	Except... I have no idea how to do this :(
+      	(require 'helm-gtags)
+      	;; Enable helm-gtags-mode
+      	(add-hook 'dired-mode-hook 'helm-gtags-mode)
+      	(add-hook 'eshell-mode-hook 'helm-gtags-mode)
+      	(add-hook 'c-mode-hook 'helm-gtags-mode)
+      	(add-hook 'c++-mode-hook 'helm-gtags-mode)
+      	(add-hook 'asm-mode-hook 'helm-gtags-mode)
+	  #+end_src
 
-	Emacs and GPG2/pinentry can not share a tty. Also, pinentry is
-	impossible to disable from the command line in GPG2.
+***** SR Speedbar (file browser / code outlining)
+	  
+	  Quick-access file browser that runs along side of a normal
+	  window supporting outlines of source code structure.
 
-    #+begin_src emacs-lisp
+	  #+begin_src emacs-lisp
+        ;; Display on the left
+        (setq sr-speedbar-right-side nil)
 
-    #+end_src
+        ;; Setup quick on/off keys
+        (global-set-key "\C-cso" 'sr-speedbar-open)
+        (global-set-key "\C-csc" 'sr-speedbar-close)
+        (global-set-key "\C-cst" 'sr-speedbar-toggle)
+	  #+end_src
+
+***** Magit (Git integration)
+
+******* Screw the gawdy highlighting of diff
+
+      	#+begin_src emacs-lisp
+          (eval-after-load "magit"
+          	(setq magit-highlight-section 0))
+      	#+end_src
+
+******* Magit wants to hide release notes via elisp now?
+
+      	#+begin_src emacs-lisp
+          (setq magit-last-seen-setup-instructions "1.4.0")
+      	#+end_src
+***** Flyspell (spell checking)
+	  #+begin_src emacs-lisp
+        (add-hook 'flyspell-mode-hook 'flyspell-buffer)
+	  #+end_src
+
+***** C/C++
+      
+******* Appearance / Tabbing
+      	#+begin_src emacs-lisp
+          (defun sb:c-general-hook ()
+          	
+          	;; Same indent style as used in the linux src tree 
+          	(c-set-style "linux")
+
+          	;; Prefer spaces over tabs, width=4
+          	(setq c-basic-offset 4
+                  indent-tabs-mode nil
+                  default-tab-width 4)
+          	
+          	;; Display line numbers
+          	(linum-mode)
+          	(setq linum-format "%4d \u2502")
+
+          	)
+
+          (add-hook 'c-mode-hook 'sb:c-general-hook)
+          (add-hook 'c++-mode-hook 'sb:c-general-hook)
+      	#+end_src
+
+******* Spell checking for comments, strings, etc
+	    #+begin_src emacs-lisp
+		  (add-hook 'c-mode-hook 'flyspell-prog-mode)
+		  (add-hook 'c-mode-hook 'flyspell-buffer)
+		  (add-hook 'c++-mode-hook 'flyspell-prog-mode)
+		  (add-hook 'c++-mode-hook 'flyspell-buffer)
+	    #+end_src
+
+******* CEDET
+		#+begin_src emacs-lisp
+          (require 'cc-mode)
+          (require 'semantic)
+
+          (global-semanticdb-minor-mode 1)
+          (global-semantic-idle-scheduler-mode 1)
+
+          (defun sb:c-autocompletion ()
+            (semantic-mode 1)
+            (company-mode))
+
+          (add-hook 'c-mode-hook 'sb:c-autocompletion)
+          (add-hook 'c++-mode-hook 'sb:c-autocompletion)
+		#+end_src
+***** Assembler
+
+      #+begin_src emacs-lisp
+        (defun sb:asm-mode-hook ()
+          (setq c-basic-offset 4
+                indent-tabs-mode nil
+                default-tab-width 4
+                tab-stop-list (quote (4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 
+                                        64 68 72 76 80 84 88 92 96 100 104 108 112 116 120))
+                ))
+
+        (add-hook 'asm-mode-hook 'sb:asm-mode-hook)
+
+        ;; Spell checking
+        (add-hook 'asm-mode-hook 'flyspell-prog-mode)
+      #+end_src
+
+***** Haskell
+
+      
+******* Doc mode
+
+      	#+begin_src emacs-lisp
+          ;; Not totally sure what doc mode is yet... sounds like a good enough idea
+          (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+      	#+end_src
+
+******* Indentation
+
+      	#+begin_src emacs-lisp
+          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+          (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent) 
+      	#+end_src
+
+******* Spell check
+	#+begin_src emacs-lisp
+          (add-hook 'haskell-mode-hook 'flyspell-prog-mode)
+	#+end_src
+***** Agda
+
+      #+begin_src emacs-lisp
+        (if (executable-find "agda-mode")
+            (load-file (let ((coding-system-for-read 'utf-8))
+                         (shell-command-to-string "agda-mode locate"))))
+
+        (custom-set-variables
+         '(agda2-include-dirs 
+           '( "/home/sean/code/agda-stdlib/src"
+              "/home/sean/.cabal/share/x86_64-linux-ghc-7.10.1/Agda-2.4.2.3/lib/prim/"
+              "/home/sean/code/agda-prelude/src"
+              "." )))
+        
+        ;; Spell checker
+        (add-hook 'agda-mode-hook 'flyspell-prog-mode)
+      #+end_src
+	  	  
+***** Emacs Lisp
+      #+begin_src emacs-lisp
+        (defun sb:lisp-mode-hook ()
+
+          ;; Display line numbers
+          (linum-mode)
+          (setq linum-format "%4d \u2502"))
+
+        (add-hook 'emacs-lisp-mode-hook 'sb:lisp-mode-hook)
+
+        ;; Spell checker
+        (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+      #+end_src
 
 ***** LaTeX
 
       Don't "word process", edit src.
 
-      
-******* AUCTeX
+******* Spell checking
+	#+begin_src emacs-lisp
+          (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+          (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
+	#+end_src
+******* AUCTeX (disabled)
 
-	Disabled for now
+	    Disabled for now
 	    
-#+begin_src emacs-lisp
+        #+begin_src emacs-lisp
 
-;(load "auctex.el" nil t t)
-;(load "preview-latex.el" nil t t)
+          ;(load "auctex.el" nil t t)
+          ;(load "preview-latex.el" nil t t)
 
-;(require 'flymake)
+          ;(require 'flymake)
 
-;(defun flymake-get-tex-args (file-name)
-;  (list "pdflatex"
-;  (list "-file-line-error" "-draftmode" "-interaction=nonstopmode" file-name)))
+          ;(defun flymake-get-tex-args (file-name)
+          ;  (list "pdflatex"
+          ;  (list "-file-line-error" "-draftmode" "-interaction=nonstopmode" file-name)))
 
-;(add-hook 'LaTeX-mode-hook 'flymake-mode)
+          ;(add-hook 'LaTeX-mode-hook 'flymake-mode)
 
-;(setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
-;(setq ispell-dictionary "english") ; this can obviously be set to any language your spell-checking program supports
+          ;(setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
+          ;(setq ispell-dictionary "english") ; this can obviously be set to any language your spell-checking program supports
 
-;(add-hook 'LaTeX-mode-hook 'flyspell-mode)
-;(add-hook 'LaTeX-mode-hook 'flyspell-buffer)
+          ;(add-hook 'LaTeX-mode-hook 'flyspell-mode)
+          ;(add-hook 'LaTeX-mode-hook 'flyspell-buffer)
 
-;(setq TeX-auto-save t)
-;(setq TeX-parse-self t)
-;(setq TeX-save-query nil)
+          ;(setq TeX-auto-save t)
+          ;(setq TeX-parse-self t)
+          ;(setq TeX-save-query nil)
 
-#+end_src
-
-***** Haskell Mode
-
+        #+end_src
+***** TXT
+******* Spell checking
+        #+begin_src emacs-lisp
+          (add-hook 'text-mode-hook 'flyspell-mode)
+          (add-hook 'text-mode-hook 'flyspell-buffer)
+        #+end_src
+***** CMake
+	  #+begin_src emacs-lisp
+        ;; Note that cmake goes at the front of the list because it needs to
+        ;; take precedence over *.txt
+        (setq auto-mode-alist
+              (append
+               '(("CMakeLists\\.txt\\'" . cmake-mode))
+               '(("\\.cmake\\'" . cmake-mode))
+               auto-mode-alist))
+	  #+end_src
+*** GnuPG / EasyPG
+***** GPG Agent Issues
       
-******* Not totally sure what doc mode is yet... sounds like a good enough idea
+      Emacs and GPG2 don't play nicely together. Almost impossible
+      to get a working config going for plain terminal mode and
+      automatic-decryption.
 
-	#+begin_src emacs-lisp
-          (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-	#+end_src
+      Except... I have no idea how to do this :(
 
-******* Indentation
-
-	#+begin_src emacs-lisp
-          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
-          (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent) 
-	#+end_src
-
-***** Agda Mode
+      Emacs and GPG2/pinentry can not share a tty. Also, pinentry is
+      impossible to disable from the command line in GPG2.
 
       #+begin_src emacs-lisp
-        (if (executable-find "agda-mode")
-          (load-file (let ((coding-system-for-read 'utf-8))
-                        (shell-command-to-string "agda-mode locate"))))
-
-        (custom-set-variables
-          '(agda2-include-dirs 
-            '( "/home/sean/code/agda-stdlib/src"
-               "/home/sean/.cabal/share/x86_64-linux-ghc-7.10.1/Agda-2.4.2.3/lib/prim/"
-               "/home/sean/code/agda-prelude/src"
-               "." )))
 
       #+end_src
 
-***** Markdown 
+*** Markdown 
 
-      
-******* Setup autoload
+    
+***** Setup autoload
 
-      (this should probably happen by default already anyway, but hey...)
+    (this should probably happen by default already anyway, but hey...)
+
+    #+begin_src emacs-lisp
+	(autoload 'markdown-mode "markdown-mode"
+		  "Major mode for editing Markdown files" t)
+    #+end_src
+
+***** Use markdown mode for *.md files (and others)
 
       #+begin_src emacs-lisp
-          (autoload 'markdown-mode "markdown-mode"
-                    "Major mode for editing Markdown files" t)
+	  (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+	  (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
       #+end_src
+*** Others
+***** ido | ido-ubiquitous (DEPRECATED by helm)
 
-******* Use markdown mode for *.md files (and others)
+      interactive auto-completion for find-file, M-x, etc
 
-	#+begin_src emacs-lisp
-            (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-            (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-	#+end_src
-***** Others
-      
+      #+begin_src emacs-lisp
+      ;;  (ido-mode t)
+      ;;  (ido-ubiquitous-mode)
+      #+end_src
