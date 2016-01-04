@@ -5,4 +5,6 @@ eshell
 PrivateConfig.*
 /elpa
 /bookmarks
+/semanticdb
 ido.last
+projectile*
