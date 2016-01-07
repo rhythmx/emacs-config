@@ -84,7 +84,15 @@
                               helm-gtags
                               sr-speedbar
                               cmake-mode
-                              company))
+                              company
+                              dash
+                              dash-functional
+                              f
+                              s
+                              flycheck
+                              fill-column-indicator
+                              lua-mode
+                              mmm-mode))
 
       (dolist (package sb:package_list)
         (when (not (package-installed-p package))
@@ -495,6 +503,25 @@
                '(("\\.cmake\\'" . cmake-mode))
                auto-mode-alist))
 	  #+end_src
+***** Lean
+
+	  #+begin_src emacs-lisp
+        ;; Set up lean-root path
+
+
+        (setq lean-rootdir "~/code/lean")  ;; <=== YOU NEED TO MODIFY THIS
+
+        (if (file-exists-p (concat lean-rootdir "/src/emacs/lean-mode.el"))
+            (progn
+              (setq-local lean-emacs-path
+                          (concat (file-name-as-directory lean-rootdir)
+                                  (file-name-as-directory "src")
+                                  "emacs"))
+              (add-to-list 'load-path (expand-file-name lean-emacs-path))
+              (require 'lean-mode)))
+
+	  #+end_src
+
 *** GnuPG / EasyPG
 ***** GPG Agent Issues
       
