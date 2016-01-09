@@ -232,36 +232,47 @@
     #+end_src
 
 *** Org System (Notes/Agendas/Journal/Wiki)
-    
-    Load org system config from file share, if present. One day I
-    might make an example layout and commit that publicly too. Until
-    then, just use your imaginations ;)
-    
-    #+begin_src emacs-lisp
 
-      ; Determine root dir of org system based on system type (because
-      ; windows paths are retarded)
+***** General Org Mode
 
-      (cond ((eq system-type 'gnu/linux) 
-             (setq sb:orgdir "/storage/organizer"))
-            ((eq system-type 'windows-nt)
-             (setq sb:orgdir "Z:\\organizer"))
-            (t
-             (setq sb:orgdir "/")))
+******* Inline LaTeX
 
-      ; Define some helper functions to keep path specs small
+		#+begin_src emacs-lisp
+          ;; Make math mode previews look better
+          (setq preview-scale-function 1.2)
+          (setq preview-fast-conversion 'off)
+          (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.6))
+		#+end_src
+***** Personalized 
+      Load org system config from file share, if present. One day I
+      might make an example layout and commit that publicly too. Until
+      then, just use your imaginations ;)
+      
+      #+begin_src emacs-lisp
 
-      (defun sb:orgdircat (filename)
-        (concat (file-name-as-directory sb:orgdir)  filename))
+      	; Determine root dir of org system based on system type (because
+      	; windows paths are retarded)
 
-      ; Check that guessed paths are sane, assume connectivity problem if not
+      	(cond ((eq system-type 'gnu/linux) 
+               (setq sb:orgdir "/storage/organizer"))
+              ((eq system-type 'windows-nt)
+               (setq sb:orgdir "Z:\\organizer"))
+              (t
+               (setq sb:orgdir "/")))
 
-      (if (and (file-directory-p sb:orgdir)
-               (file-exists-p (sb:orgdircat "config.org")))
-          (org-babel-load-file (sb:orgdircat "config.org"))
-        (warn "File server does not seem to be accessible"))
+      	; Define some helper functions to keep path specs small
 
-    #+end_src
+      	(defun sb:orgdircat (filename)
+          (concat (file-name-as-directory sb:orgdir)  filename))
+
+      	; Check that guessed paths are sane, assume connectivity problem if not
+
+      	(if (and (file-directory-p sb:orgdir)
+               	 (file-exists-p (sb:orgdircat "config.org")))
+          	(org-babel-load-file (sb:orgdircat "config.org"))
+          (warn "File server does not seem to be accessible"))
+
+      #+end_src
 
 *** Development Environment
 
@@ -506,20 +517,33 @@
 ***** Lean
 
 	  #+begin_src emacs-lisp
-        ;; Set up lean-root path
+            ;; Set up lean-root path
 
 
-        (setq lean-rootdir "~/code/lean")  ;; <=== YOU NEED TO MODIFY THIS
+            (setq lean-rootdir "~/code/lean")  ;; <=== YOU NEED TO MODIFY THIS
 
-        (if (file-exists-p (concat lean-rootdir "/src/emacs/lean-mode.el"))
-            (progn
-              (setq-local lean-emacs-path
-                          (concat (file-name-as-directory lean-rootdir)
-                                  (file-name-as-directory "src")
-                                  "emacs"))
-              (add-to-list 'load-path (expand-file-name lean-emacs-path))
-              (require 'lean-mode)))
+            (if (file-exists-p (concat lean-rootdir "/src/emacs/lean-mode.el"))
+                (progn
+                  (setq-local lean-emacs-path
+                              (concat (file-name-as-directory lean-rootdir)
+                                      (file-name-as-directory "src")
+                                      "emacs"))
+                  (add-to-list 'load-path (expand-file-name lean-emacs-path))
+                  (require 'lean-mode)))
 
+        (defun sb:lean-mode-hook ()
+
+          ;; Display line numbers
+          (linum-mode)
+          (setq linum-format "%4d \u2502")
+          (local-set-key (kbd "\C-c\C-c") 
+                         (lambda ()
+                           (interactive)
+                           (save-buffer)
+                           (let ((current-prefix-arg ""))
+                             (lean-execute nil)))))
+          
+        (add-hook 'lean-mode-hook 'sb:lean-mode-hook)
 	  #+end_src
 
 *** GnuPG / EasyPG
