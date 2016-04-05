@@ -191,7 +191,7 @@
 *** Transparency 
 
     #+begin_src emacs-lisp
-      (set-frame-parameter (selected-frame) 'alpha '(93 50))
+    ;  (set-frame-parameter (selected-frame) 'alpha '(93 50))
     #+end_src
 
 *** Show line and column numbers in status bar
