@@ -229,6 +229,7 @@
     #+begin_src emacs-lisp
       (require 'helm-config)
       (helm-mode 1)
+      (global-set-key (kbd "C-x C-f") 'helm-find-files)
     #+end_src
 
 *** Org System (Notes/Agendas/Journal/Wiki)
