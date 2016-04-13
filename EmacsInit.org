@@ -12,8 +12,9 @@
   Embedded withing the text of this file is my actual emacs
   configuration. It uses org-babel mode to document everything inline.
 
+* TODO Documentation and Credits
 
-* Personal Information
+* Personal/Local Information
 
   Some emacs features need access to sensitive data like passwords,
   keys, etc. Since this configuration is being posted publicly, fake
@@ -42,79 +43,192 @@
           (org-babel-load-file "~/.emacs.d/PrivateConfig.org"))
     #+end_src
 
-* Package Management
+* Runtime Environment
 
-*** Configure & Init packages.el
+*** Setup
 
-    Set up the package menagement system and add some of the more
-    popular public package repositories. This should sync with the
-    remote servers to ensure package lists are up-to-date.
+***** Helper functions
 
-    #+begin_src emacs-lisp
-      (require 'package)
+	  #+begin_src emacs-lisp
+        ;; Look for a required system binary
+        (defun sb:exe-in-path? (exefile)
+          (not (not
+                (locate-file exefile
+                             (split-string (getenv "PATH") ":")
+                             (if (eq system-type 'windows-nt) '(".exe") nil)
+                             'file-executable-p))))
+	  #+end_src
 
-      (add-to-list 'package-archives
-                   '("melpa" . "http://melpa.milkbox.net/packages/"))
+***** Setup $PATH 
+	  
+	  Load an interactive shell so all paths from .bashrc are
+	  included. This helps especially for certain scripting
+	  environments that dynamically configure their environment. 
 
-      ;; Some other package sources
-      ;; '("elpa" . "http://tromey.com/elpa/") ;; ELPA is the official emacs repo (iirc?)
-      ;; '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
-      ;; '("marmalade" . "http://marmalade-repo.org/packages/")
+	  #+begin_src emacs-lisp
+		(defun sb:set-path-from-shell ()
+		  (let ((path-from-shell (replace-regexp-in-string
+								  "[ \t\n]*$"
+								  ""
+								  (shell-command-to-string "$SHELL --login -c 'echo $PATH'"))))
+			(setenv "PATH" path-from-shell)
+			(setq eshell-path-env path-from-shell) ; for eshell users
+			(setq exec-path (split-string path-from-shell path-separator))))
 
-      (package-initialize)
-    #+end_src
+		;; Windows can't handle the bash
+		(if (not (eq system-type 'windows-nt))
+			(sb:set-path-from-shell))
+	  #+end_src
 
-*** Automatically install required packages
 
-    You can modify the list below to include any packages that may be
-    required later on during initialization. If any in the list are
-    mising, they will be automatically installed.
+*** System Prerequisites
 
-    #+begin_src emacs-lisp
-      (setq sb:package_list '(zenburn-theme
-                              cyberpunk-theme
-                              solarized-theme
-                              magit 
-                              lua-mode
-                              haskell-mode
-                              markdown-mode
-                              helm
-                              projectile
-                              helm-projectile
-                              ; helm-gtags
-                              sr-speedbar
-                              cmake-mode
-                              company
-                              dash
-                              dash-functional
-                              f
-                              s
-                              flycheck
-                              fill-column-indicator
-                              lua-mode
-                              mmm-mode))
+	We should check for any external programs required by later
+	configuration. If they aren't present, handle this gracefully by
+	presenting an error or warning message and quietly disabling the
+	dependent functionality.
 
-      (dolist (package sb:package_list)
-        (when (not (package-installed-p package))
-          (package-refresh-contents)
-          (package-install package)))
-    #+end_src
+***** GNU Global (aka GTAGS)
+	  
+	  Global is basically a replacement for CTAGS. It indexes many
+	  different types of source files and allows any editor to easily
+	  add advanced source code navigation.
 
-*** Load PATH from .bashrc (if it makes sense on current platform)
+	  This configuration combines uses gtags & helm integration if
+	  global is found on the system. If not, loading of this plugin is
+	  skipped.
 
-    #+begin_src emacs-lisp
-      (defun set-exec-path-from-shell-PATH ()
-        (let ((path-from-shell (replace-regexp-in-string
-                                "[ \t\n]*$"
-                                ""
-                                (shell-command-to-string "$SHELL --login -c 'echo $PATH'"))))
-          (setenv "PATH" path-from-shell)
-          (setq eshell-path-env path-from-shell) ; for eshell users
-          (setq exec-path (split-string path-from-shell path-separator))))
+	  Install https://aur.archlinux.org/global.git and https://aur.archlinux.org/idutils.git
 
-      (if (or (eq system-type 'darwin) (eq system-type 'gnu/linux))
-          (set-exec-path-from-shell-PATH)) 
-    #+end_src
+	  #+begin_src emacs-lisp
+        (if (not (sb:exe-in-path? "gtags"))
+            (warn "GNU Global does not appear to be installed. Disabling helm+gtags")
+          (setq sb:has-gtags t))
+	  #+end_src
+
+***** GPG
+	  
+	  #+begin_src emacs-lisp
+        (if (not (sb:exe-in-path? "gpg"))
+            (warn "GPG does not appear to be installed. y u no SECURITY!?")
+          (setq sb:has-gpg t))
+	  #+end_src
+	  
+	  
+***** LaTeX
+
+	  pacman -Ss texlive-core texlive-latexextra
+
+	  #+begin_src emacs-lisp
+        (if (not (sb:exe-in-path? "latex"))
+            (warn "LaTeX is not installed. Disabling previews in org-mode")
+          (setq sb:has-latex t))
+	  #+end_src
+
+
+***** Graphviz
+
+	  #+begin_src emacs-lisp
+        (if (not (sb:exe-in-path? "dot"))
+            (warn "graphviz is not installed. Inline dot previews will not be available")
+          (setq sb:has-graphviz t))
+	  #+end_src
+
+*** Emacs Package Management
+
+***** Configure & Init packages.el
+
+      Set up the package menagement system and add some of the more
+      popular public package repositories. This should sync with the
+      remote servers to ensure package lists are up-to-date.
+
+      #+begin_src emacs-lisp
+      	(require 'package)
+
+      	(add-to-list 'package-archives
+                   	 '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+      	;; Some other package sources
+      	;; '("elpa" . "http://tromey.com/elpa/") ;; ELPA is the official emacs repo (iirc?)
+      	;; '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
+      	;; '("marmalade" . "http://marmalade-repo.org/packages/")
+
+      	(package-initialize)
+      #+end_src
+
+***** Automatically install required packages
+
+******* TODO Break this out better 
+
+      You can modify the list below to include any packages that may be
+      required later on during initialization. If any in the list are
+      mising, they will be automatically installed.
+
+      #+begin_src emacs-lisp
+	(setq sb:package-list '())
+
+	;; Some of my favorite themes
+	(setq sb:package-list
+	      (append sb:package-list
+		      '(zenburn-theme
+			cyberpunk-theme
+			solarized-theme)))
+		      
+	;; Git integration
+	(add-to-list 'sb:package-list 'magit)
+
+	;; Lua source editing 
+	(add-to-list 'sb:package-list 'lua-mode)                
+
+	;; Haskell programming
+	(add-to-list 'sb:package-list 'haskell-mode)
+
+	;; Markdown syntax highlighting
+	(add-to-list 'sb:package-list 'markdown-mode)
+
+	;; Helm, better navigation and auto-complete  
+	(add-to-list 'sb:package-list 'helm)
+
+	;; "projects" (helper commands centered around git repos)
+	(add-to-list 'sb:package-list 'projectile)                
+
+	;; Integrate projectile into helm
+	(add-to-list 'sb:package-list 'helm-projectile)
+
+	;; Sidebar with directory listing and source outline 
+	(add-to-list 'sb:package-list 'sr-speedbar)                
+
+	;; Edit support for cmake (CMakeLists.txt)
+	(add-to-list 'sb:package-list 'cmake-mode)
+
+	;; Auto-complete (COMP-lete ANY)
+	(add-to-list 'sb:package-list 'company)
+
+	;; Pre-reqs for Lean mode (
+	(setq sb:package-list
+	      (append
+	       sb:package-list
+	       '(dash dash-functional f s )))
+
+	;; Support editing source in source (like javascript inside html)
+	(add-to-list 'sb:package-list 'mmm-mode)
+
+	;; Not sure why this is here
+	(add-to-list 'sb:package-list 'fill-column-indicator)         
+
+	;; Read docs for this 
+	(add-to-list 'sb:package-list 'flycheck)
+
+	(if sb:has-gtags
+	    (add-to-list 'sb:package-list
+			 'helm-gtags))
+
+
+	(dolist (package sb:package-list)
+	  (when (not (package-installed-p package))
+	    (package-refresh-contents)
+	    (package-install package)))
+      #+end_src
 
 * Appearance
   
@@ -166,7 +280,7 @@
     You can set per-mode themes later on
 
     #+begin_src emacs-lisp
-      (load-theme 'solarized-dark t)
+      (load-theme 'cyberpunk t)
     #+end_src
 
 *** Fullscreen mode [F11 key]
@@ -217,7 +331,6 @@
 	    backup-directory-alist '(("." . "~/.saves")))
     #+end_src
 
-
 * Setup Modes
 
 
@@ -237,6 +350,8 @@
 ***** General Org Mode
 
 ******* Inline LaTeX
+
+		Preview with "C-c C-x C-l"
 
 		#+begin_src emacs-lisp
           ;; Make math mode previews look better
@@ -294,20 +409,27 @@
 ***** GTags (Source navigation)
 	  
 	  #+begin_src emacs-lisp
-      	;(setq helm-gtags-ignore-case t
-        ;      helm-gtags-auto-update t
-        ;      helm-use-input-at-cursor t
-        ;      helm-gtags-pulse-at-cursor t
-        ;      helm-gtags-prefix-key "\C-cg"
-        ;      helm-gtags-suggested-key-mapping t)
+            (setq helm-gtags-ignore-case t
+                  helm-gtags-auto-update t
+                  helm-use-input-at-cursor t
+                  helm-gtags-pulse-at-cursor t
+                  helm-gtags-prefix-key "\C-cg"
+                  helm-gtags-suggested-key-mapping t)
 
-      	;(require 'helm-gtags)
-      	;;; Enable helm-gtags-mode
-      	;(add-hook 'dired-mode-hook 'helm-gtags-mode)
-      	;(add-hook 'eshell-mode-hook 'helm-gtags-mode)
-      	;(add-hook 'c-mode-hook 'helm-gtags-mode)
-      	;(add-hook 'c++-mode-hook 'helm-gtags-mode)
-      	;(add-hook 'asm-mode-hook 'helm-gtags-mode)
+            (require 'helm-gtags)
+            ;; Enable helm-gtags-mode
+            (add-hook 'dired-mode-hook 'helm-gtags-mode)
+            (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+            (add-hook 'c-mode-hook 'helm-gtags-mode)
+            (add-hook 'c++-mode-hook 'helm-gtags-mode)
+            (add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+            (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+            (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+            (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+            (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+            (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+            (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
 	  #+end_src
 
 ***** SR Speedbar (file browser / code outlining)
@@ -599,6 +721,59 @@
 	  (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
       #+end_src
 *** Others
+***** eshell
+	  #+begin_src emacs-lisp
+        ;; Eshell-prompt (credit to thierryvolpiatto via https://github.com/emacs-helm/helm/issues/1153))
+        (setq eshell-prompt-function
+              #'(lambda nil
+                  (concat
+                   (getenv "USER")
+                   "@"
+                   (system-name)
+                   ":"
+                   (abbreviate-file-name (eshell/pwd))
+                   (if (= (user-uid) 0) " # " " $ "))))
+
+        ;; Compatibility 24.2/24.3
+        (unless (fboundp 'eshell-pcomplete)
+          (defalias 'eshell-pcomplete 'pcomplete))
+        (unless (fboundp 'eshell-complete-lisp-symbol)
+          (defalias 'eshell-complete-lisp-symbol 'lisp-complete-symbol))
+
+        (add-hook 'eshell-mode-hook #'(lambda ()
+                                        ;; Helm completion with pcomplete
+                                        (setq eshell-cmpl-ignore-case t)
+                                        (eshell-cmpl-initialize)
+                                        (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
+                                        ;; Helm lisp completion
+                                        (define-key eshell-mode-map [remap eshell-complete-lisp-symbol] 'helm-lisp-completion-at-point)
+                                        ;; Helm completion on eshell history.
+                                        (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
+                                        ;; Eshell prompt
+                                        (set-face-attribute 'eshell-prompt nil :foreground "DeepSkyBlue")
+                                        ;; Allow yanking right now instead of returning "Mark set"
+                                        ;;(push-mark)
+                                        ))
+
+        ;; Eshell history size
+        (setq eshell-history-size 1000) ; Same as env var HISTSIZE.
+
+        ;; Eshell-banner
+        (setq eshell-banner-message (format "%s %s\nwith Emacs %s on %s"
+                                            (propertize
+                                             "Eshell session started on"
+                                             'face '((:foreground "Goldenrod")))
+                                            (propertize
+                                             (format-time-string "%c")
+                                             'face '((:foreground "magenta")))
+                                            (propertize emacs-version
+                                                        'face '((:foreground "magenta")))
+                                            (propertize
+                                             (with-temp-buffer
+                                               (call-process "uname" nil t nil "-r")
+                                               (buffer-string))
+                                             'face '((:foreground "magenta")))))
+	  #+end_src
 ***** ido | ido-ubiquitous (DEPRECATED by helm)
 
       interactive auto-completion for find-file, M-x, etc
