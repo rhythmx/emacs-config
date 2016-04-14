@@ -12,7 +12,40 @@
   Embedded withing the text of this file is my actual emacs
   configuration. It uses org-babel mode to document everything inline.
 
-* TODO Documentation and Credits
+* TODO Documentation
+
+*** Cheatsheet
+***** Helm
+
+      Most any prompt launches a helm session.
+
+      C-j   : Enter directory
+      C-l   : Go up a directory
+      C-SPC : mark file
+      M-a   : mark all files
+
+***** Helm-projectile (prefix: C-c p)
+
+      Commands that operate on projects
+
+      C-c p p : switch project
+      C-c p f : find file in project 
+      C-c p k : kill all buffers for project
+      C-c p d : find dir in project
+      C-c p c : compile project
+      
+***** Helm-gtags (prefix: C-c g)
+
+      M-. : find a tag
+      M-* : pop tag stack
+      C-c g t : find a tag
+      C-c g r : find references
+
+***** Speedbar
+
+      C-c s o : open speedbar
+      C-c s c : close speedbar
+      C-c s t : toggle speedbar
 
 * Personal/Local Information
 
