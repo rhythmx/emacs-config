@@ -101,17 +101,19 @@
 	  Install https://aur.archlinux.org/global.git and https://aur.archlinux.org/idutils.git
 
 	  #+begin_src emacs-lisp
-        (if (not (sb:exe-in-path? "gtags"))
-            (warn "GNU Global does not appear to be installed. Disabling helm+gtags")
-          (setq sb:has-gtags t))
+            (setq sb:has-gtags nil)
+            (if (not (sb:exe-in-path? "gtags"))
+                (warn "GNU Global does not appear to be installed. Disabling helm+gtags")
+              (setq sb:has-gtags t))
 	  #+end_src
 
 ***** GPG
 	  
 	  #+begin_src emacs-lisp
-        (if (not (sb:exe-in-path? "gpg"))
-            (warn "GPG does not appear to be installed. y u no SECURITY!?")
-          (setq sb:has-gpg t))
+            (setq sb:has-gpg nil)
+            (if (not (sb:exe-in-path? "gpg"))
+                (warn "GPG does not appear to be installed. y u no SECURITY!?")
+              (setq sb:has-gpg t))
 	  #+end_src
 	  
 	  
@@ -120,18 +122,20 @@
 	  pacman -Ss texlive-core texlive-latexextra
 
 	  #+begin_src emacs-lisp
-        (if (not (sb:exe-in-path? "latex"))
-            (warn "LaTeX is not installed. Disabling previews in org-mode")
-          (setq sb:has-latex t))
+            (setq sb:has-latex nil)
+            (if (not (sb:exe-in-path? "latex"))
+                (warn "LaTeX is not installed. Disabling previews in org-mode")
+              (setq sb:has-latex t))
 	  #+end_src
 
 
 ***** Graphviz
 
 	  #+begin_src emacs-lisp
-        (if (not (sb:exe-in-path? "dot"))
-            (warn "graphviz is not installed. Inline dot previews will not be available")
-          (setq sb:has-graphviz t))
+            (setq sb:has-graphviz nil)
+            (if (not (sb:exe-in-path? "dot"))
+                (warn "graphviz is not installed. Inline dot previews will not be available")
+              (setq sb:has-graphviz t))
 	  #+end_src
 
 *** Emacs Package Management
