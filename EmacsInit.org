@@ -676,8 +676,8 @@
                 (add-hook 'lean-mode-hook 'sb:lean-mode-hook)
 
                 (setq lean-flycheck-checker-options '(
-                                                      "--memory"
-                                                      "4000000"
+                                                      "-M"
+                                                      "4096"
                                                       "--keep-going" "999"
                                                       "--flycheck"
                                                       "--flycheck-max-messages" "100"))
