@@ -382,10 +382,30 @@
       (global-set-key (kbd "C-x C-f") 'helm-find-files)
     #+end_src
 
+*** WindMove
+
+    Use [shift]+arrow to move the cursor from window to window instead
+    of C-x o
+    #+begin_src emacs-lisp
+      (when (fboundp 'windmove-default-keybindings)
+        (windmove-default-keybindings))
+    #+end_src
+    
 *** Org System (Notes/Agendas/Journal/Wiki)
 
 ***** General Org Mode
 
+******* Windmove overrides todo/prio keys
+	#+begin_src emacs-lisp
+          (defun sb:org-windmove-hook ()
+            (when (fboundp 'windmove-default-keybindings)
+              (add-hook 'org-shiftup-hook 'windmove-up)
+              (add-hook 'org-shiftleft-hook 'windmove-left)
+              (add-hook 'org-shiftdown-hook 'windmove-down)
+              (add-hook 'org-shiftright-hook 'windmove-right)))
+
+          (add-hook 'org-mode-hook 'sb:org-windmove-hook)
+	#+end_src
 ******* Inline LaTeX
 
 		Preview with "C-c C-x C-l"
