@@ -357,10 +357,12 @@
     You can set per-mode themes later on
 
     #+begin_src emacs-lisp
-      ;(load-theme 'cyberpunk t)
-      ;(load-theme 'solarized-dark t)
-      ;(load-theme 'abyss t)
-      (load-theme 'base16-tomorrow-dark)
+      ;;(load-theme 'cyberpunk t)
+      ;;(load-theme 'solarized-dark t)
+      ;;(load-theme 'abyss t)
+
+      (when (display-graphic-p)
+        (load-theme 'base16-tomorrow-dark))
     #+end_src
 
 *** Fullscreen mode [F11 key]
