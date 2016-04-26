@@ -1,6 +1,5 @@
 #+TITLE: Sean's Emacs Configuration
 
-
 * Quick Start
 
 #+begin_src bash
@@ -40,6 +39,14 @@
       M-* : pop tag stack
       C-c g t : find a tag
       C-c g r : find references
+
+***** Semantic 
+
+      C-c spc : complete symbol
+      C-c j : find symbol
+      semantic-ia-show-summary
+
+
 
 ***** Speedbar
 
@@ -171,6 +178,7 @@
               (setq sb:has-graphviz t))
 	  #+end_src
 
+***** TODO ispell + dictionary
 *** Emacs Package Management
 
 ***** Configure & Init packages.el
@@ -202,69 +210,71 @@
       mising, they will be automatically installed.
 
       #+begin_src emacs-lisp
-	(setq sb:package-list '())
+        (setq sb:package-list '())
 
-	;; Some of my favorite themes
-	(setq sb:package-list
-	      (append sb:package-list
-		      '(zenburn-theme
-			cyberpunk-theme
-			solarized-theme)))
-		      
-	;; Git integration
-	(add-to-list 'sb:package-list 'magit)
+        ;; Some of my favorite themes
+        (setq sb:package-list
+              (append sb:package-list
+                      '(zenburn-theme
+                        cyberpunk-theme
+                        solarized-theme
+                        abyss-theme
+                        base16-theme)))
+                      
+        ;; Git integration
+        (add-to-list 'sb:package-list 'magit)
 
-	;; Lua source editing 
-	(add-to-list 'sb:package-list 'lua-mode)                
+        ;; Lua source editing 
+        (add-to-list 'sb:package-list 'lua-mode)                
 
-	;; Haskell programming
-	(add-to-list 'sb:package-list 'haskell-mode)
+        ;; Haskell programming
+        (add-to-list 'sb:package-list 'haskell-mode)
 
-	;; Markdown syntax highlighting
-	(add-to-list 'sb:package-list 'markdown-mode)
+        ;; Markdown syntax highlighting
+        (add-to-list 'sb:package-list 'markdown-mode)
 
-	;; Helm, better navigation and auto-complete  
-	(add-to-list 'sb:package-list 'helm)
+        ;; Helm, better navigation and auto-complete  
+        (add-to-list 'sb:package-list 'helm)
 
-	;; "projects" (helper commands centered around git repos)
-	(add-to-list 'sb:package-list 'projectile)                
+        ;; "projects" (helper commands centered around git repos)
+        (add-to-list 'sb:package-list 'projectile)                
 
-	;; Integrate projectile into helm
-	(add-to-list 'sb:package-list 'helm-projectile)
+        ;; Integrate projectile into helm
+        (add-to-list 'sb:package-list 'helm-projectile)
 
-	;; Sidebar with directory listing and source outline 
-	(add-to-list 'sb:package-list 'sr-speedbar)                
+        ;; Sidebar with directory listing and source outline 
+        (add-to-list 'sb:package-list 'sr-speedbar)                
 
-	;; Edit support for cmake (CMakeLists.txt)
-	(add-to-list 'sb:package-list 'cmake-mode)
+        ;; Edit support for cmake (CMakeLists.txt)
+        (add-to-list 'sb:package-list 'cmake-mode)
 
-	;; Auto-complete (COMP-lete ANY)
-	(add-to-list 'sb:package-list 'company)
+        ;; Auto-complete (COMP-lete ANY)
+        (add-to-list 'sb:package-list 'company)
 
-	;; Pre-reqs for Lean mode (
-	(setq sb:package-list
-	      (append
-	       sb:package-list
-	       '(dash dash-functional f s )))
+        ;; Pre-reqs for Lean mode (
+        (setq sb:package-list
+              (append
+               sb:package-list
+               '(dash dash-functional f s )))
 
-	;; Support editing source in source (like javascript inside html)
-	(add-to-list 'sb:package-list 'mmm-mode)
+        ;; Support editing source in source (like javascript inside html)
+        (add-to-list 'sb:package-list 'mmm-mode)
 
-	;; Not sure why this is here
-	(add-to-list 'sb:package-list 'fill-column-indicator)         
+        ;; Not sure why this is here
+        (add-to-list 'sb:package-list 'fill-column-indicator)         
 
-	;; Read docs for this 
-	(add-to-list 'sb:package-list 'flycheck)
+        ;; Read docs for this 
+        (add-to-list 'sb:package-list 'flycheck)
 
-	(if sb:has-gtags
-	    (add-to-list 'sb:package-list
-			 'helm-gtags))
+        (if sb:has-gtags
+            (add-to-list 'sb:package-list
+                         'helm-gtags))
 
 
-	(dolist (package sb:package-list)
-	  (when (not (package-installed-p package))
-	    (package-refresh-contents)
-	    (package-install package)))
+        (dolist (package sb:package-list)
+          (when (not (package-installed-p package))
+            (package-refresh-contents)
+            (package-install package)))
       #+end_src
 
 * Appearance
@@ -317,7 +327,10 @@
     You can set per-mode themes later on
 
     #+begin_src emacs-lisp
-      (load-theme 'cyberpunk t)
+      ;(load-theme 'cyberpunk t)
+      ;(load-theme 'solarized-dark t)
+      ;(load-theme 'abyss t)
+      (load-theme 'base16-tomorrow-dark)
     #+end_src
 
 *** Fullscreen mode [F11 key]
