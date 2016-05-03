@@ -759,52 +759,55 @@
 ***** Lean
 
 	  #+begin_src emacs-lisp
-        ;; Set up lean-root path
+            ;; Find lean-mode.el based on whichever lean binary is first in $PATH.
 
+            ;; Lean requires 'lean-rootdir' to be set prior to requiring lean-mode
+            (setq lean-rootdir
+                  (replace-regexp-in-string
+                   "\\(bin\\)?.lean.*" ""
+                   (locate-file "lean"
+                                (split-string (getenv "PATH") ":")
+                                (if (eq system-type 'windows-nt) '(".exe") nil))))
+                  
+            (let  ((mylean-path (concat (file-name-as-directory lean-rootdir)
+                                        (file-name-as-directory "share")
+                                        (file-name-as-directory "emacs")
+                                        (file-name-as-directory "site-lisp")
+                                        "lean")))
+              (when (file-exists-p (concat (file-name-as-directory mylean-path) "lean-mode.el"))
+                (add-to-list 'load-path (expand-file-name mylean-path))
+                (require 'lean-mode)))
+              
+            (defun sb:lean-mode-hook ()
+              
+              ;; Display line numbers
+              (linum-mode)
+              (setq linum-format "%4d \u2502")
+              
+              ;; Dont wrap long lines
+              (toggle-truncate-lines)
+              
+              (local-set-key (kbd "\C-c\C-c") 
+                             (lambda ()
+                               (interactive)
+                               (save-buffer)
+                               (let ((current-prefix-arg ""))
+                                 (lean-execute nil))))
+              (local-set-key (kbd "\C-c f") 
+                             (lambda ()
+                               (interactive)
+                               (lean-flycheck-toggle-use)
+                               (message "Lean Flychecking is %s"
+                                        (if lean-flycheck-use "ON" "OFF")))))
 
-        (setq lean-rootdir "~/code/lean")  ;; <=== YOU NEED TO MODIFY THIS
+            (add-hook 'lean-mode-hook 'sb:lean-mode-hook)
 
-        (if (file-exists-p (concat lean-rootdir "/src/emacs/lean-mode.el"))
-            (progn
-              (setq-local lean-emacs-path
-                          (concat (file-name-as-directory lean-rootdir)
-                                  (file-name-as-directory "src")
-                                  "emacs"))
-              (add-to-list 'load-path (expand-file-name lean-emacs-path))
-              (require 'lean-mode)))
-
-        (defun sb:lean-mode-hook ()
-          
-          ;; Display line numbers
-          (linum-mode)
-          (setq linum-format "%4d \u2502")
-
-          ;; Dont wrap long lines
-          (toggle-truncate-lines)
-          
-          (local-set-key (kbd "\C-c\C-c") 
-                         (lambda ()
-                           (interactive)
-                           (save-buffer)
-                           (let ((current-prefix-arg ""))
-                             (lean-execute nil))))
-          (local-set-key (kbd "\C-c f") 
-                         (lambda ()
-                           (interactive)
-                           (lean-flycheck-toggle-use)
-                           (message "Lean Flychecking is %s"
-                                    (if lean-flycheck-use "ON" "OFF")))))
-          
-        (add-hook 'lean-mode-hook 'sb:lean-mode-hook)
-
-        (setq lean-flycheck-checker-options '(
-                                              "-M"
-                                              "4096"
-                                              "--keep-going" "999"
-                                              "--flycheck"
-                                              "--flycheck-max-messages" "100"))
-
-
+            (setq lean-flycheck-checker-options '(
+                                                  "-M"
+                                                  "4096"
+                                                  "--keep-going" "999"
+                                                  "--flycheck"
+                                                  "--flycheck-max-messages" "100"))
 
 	  #+end_src
 
