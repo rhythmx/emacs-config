@@ -3,6 +3,8 @@ EmacsInit.el
 *~
 eshell
 PrivateConfig.*
+EmailConfig.*
+init.el
 /elpa
 /bookmarks
 /semanticdb
