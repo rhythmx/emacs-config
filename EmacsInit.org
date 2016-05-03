@@ -189,8 +189,22 @@
             (setq sb:has-email t))
 	#+end_src
 
-***** TODO ispell + dictionary
-      	      
+***** ispell + dictionary
+      
+      #+begin_src emacs-lisp
+
+        (setq sb:has-spell nil)
+        (if (not (sb:exe-in-path? "aspell"))
+            (warn "ispell/aspell does not appear to be installed. Disabling spell checking globally")
+          (setq sb:has-spell t))
+
+        (when (and sb:has-spell
+                 (string= (shell-command-to-string "aspell dicts") ""))
+          (warn "spell checker is install but no dictionary is available. disabling spell checking globally")
+          (setq sb:has-spell nil))
+
+      #+end_src
+
 *** Emacs Package Management
 
 ***** Configure & Init packages.el
@@ -559,7 +573,8 @@
       	#+end_src
 ***** Flyspell (spell checking)
 	  #+begin_src emacs-lisp
-        (add-hook 'flyspell-mode-hook 'flyspell-buffer)
+            (when sb:has-spell
+              (add-hook 'flyspell-mode-hook 'flyspell-buffer))
 	  #+end_src
 
 ***** C/C++
@@ -588,10 +603,11 @@
 
 ******* Spell checking for comments, strings, etc
 	    #+begin_src emacs-lisp
-		  (add-hook 'c-mode-hook 'flyspell-prog-mode)
-		  (add-hook 'c-mode-hook 'flyspell-buffer)
-		  (add-hook 'c++-mode-hook 'flyspell-prog-mode)
-		  (add-hook 'c++-mode-hook 'flyspell-buffer)
+              (when sb:has-spell
+                (add-hook 'c-mode-hook 'flyspell-prog-mode)
+                (add-hook 'c-mode-hook 'flyspell-buffer)
+                (add-hook 'c++-mode-hook 'flyspell-prog-mode)
+                (add-hook 'c++-mode-hook 'flyspell-buffer))
 	    #+end_src
 
 ******* CEDET
@@ -623,7 +639,8 @@
         (add-hook 'asm-mode-hook 'sb:asm-mode-hook)
 
         ;; Spell checking
-        (add-hook 'asm-mode-hook 'flyspell-prog-mode)
+        (when sb:has-spell
+          (add-hook 'asm-mode-hook 'flyspell-prog-mode))
       #+end_src
 
 ***** Haskell
@@ -646,7 +663,8 @@
 
 ******* Spell check
 	#+begin_src emacs-lisp
-          (add-hook 'haskell-mode-hook 'flyspell-prog-mode)
+          (when sb:has-spell
+            (add-hook 'haskell-mode-hook 'flyspell-prog-mode))
 	#+end_src
 ***** Agda
 
@@ -661,9 +679,10 @@
               "/home/sean/.cabal/share/x86_64-linux-ghc-7.10.1/Agda-2.4.2.3/lib/prim/"
               "/home/sean/code/agda-prelude/src"
               "." )))
-        
+
         ;; Spell checker
-        (add-hook 'agda-mode-hook 'flyspell-prog-mode)
+        (when sb:has-spell
+          (add-hook 'agda-mode-hook 'flyspell-prog-mode))
       #+end_src
 	  	  
 ***** Emacs Lisp
@@ -677,7 +696,8 @@
         (add-hook 'emacs-lisp-mode-hook 'sb:lisp-mode-hook)
 
         ;; Spell checker
-        (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+        (when sb:has-spell
+          (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode))
       #+end_src
 
 ***** LaTeX
@@ -686,8 +706,9 @@
 
 ******* Spell checking
 	#+begin_src emacs-lisp
-          (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-          (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
+          (when sb:has-spell
+            (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+            (add-hook 'LaTeX-mode-hook 'flyspell-buffer))
 	#+end_src
 ******* AUCTeX (disabled)
 
@@ -720,8 +741,9 @@
 ***** TXT
 ******* Spell checking
         #+begin_src emacs-lisp
-          (add-hook 'text-mode-hook 'flyspell-mode)
-          (add-hook 'text-mode-hook 'flyspell-buffer)
+          (when sb:has-spell
+            (add-hook 'text-mode-hook 'flyspell-mode)
+            (add-hook 'text-mode-hook 'flyspell-buffer))
         #+end_src
 ***** CMake
 	  #+begin_src emacs-lisp
