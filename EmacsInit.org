@@ -759,6 +759,14 @@
 ***** Lean
 
 	  #+begin_src emacs-lisp
+            ;; Have to set this before require or else it only uses its own version
+            (setq lean-flycheck-checker-options '(
+                                                  "-M"
+                                                  "4096"
+                                                  "--keep-going" "999"
+                                                  "--flycheck"
+                                                  "--flycheck-max-messages" "100"))
+
             ;; Find lean-mode.el based on whichever lean binary is first in $PATH.
 
             ;; Lean requires 'lean-rootdir' to be set prior to requiring lean-mode
@@ -786,6 +794,13 @@
               
               ;; Dont wrap long lines
               (toggle-truncate-lines)
+
+              (setq lean-flycheck-checker-options '(
+                                                  "-M"
+                                                  "4096"
+                                                  "--keep-going" "999"
+                                                  "--flycheck"
+                                                  "--flycheck-max-messages" "100"))
               
               (local-set-key (kbd "\C-c\C-c") 
                              (lambda ()
@@ -802,12 +817,6 @@
 
             (add-hook 'lean-mode-hook 'sb:lean-mode-hook)
 
-            (setq lean-flycheck-checker-options '(
-                                                  "-M"
-                                                  "4096"
-                                                  "--keep-going" "999"
-                                                  "--flycheck"
-                                                  "--flycheck-max-messages" "100"))
 
 	  #+end_src
 
