@@ -11,7 +11,7 @@
   Embedded withing the text of this file is my actual emacs
   configuration. It uses org-babel mode to document everything inline.
 
-* TODO Documentation
+* Documentation
 
 *** Cheatsheet
 ***** Helm
@@ -54,6 +54,35 @@
       C-c s c : close speedbar
       C-c s t : toggle speedbar
 
+
+***** WindMove
+
+      [shift] + arrow key : focus switch to window in that direction
+
+***** FullScreen
+
+      F11 : toggle fullscreen mode 
+
+***** Editing nested languages
+
+      C-c ' : edit code block, enter again to exit
+
+*** Prerequisites 
+
+    Most pre-requisites are handled automatically and are
+    conditionally enabled based on the presence (or lack thereof) of
+    needed binaries on the local system. See "Emacs Package
+    Management" below to add/remove dependancies.
+
+    Some things you might want to have installed:
+
+    * GnuPG
+    * Aspell/Ispell (don't forget to install a dictionary too!)
+    * Gnu Global (ctags but better)
+    * LaTeX
+    * GraphViz
+    * Dev tools (gcc, clang, ruby, etc.)
+
 * Personal/Local Information
 
   Some emacs features need access to sensitive data like passwords,
@@ -61,15 +90,12 @@
   values are inserted later overridden by a file that will never be
   committed into source control.
 
-
-
 *** Set up personalization vars
 
     #+begin_src emacs-lisp
-      ;; Just load some defaults here for public commits 
-      (setq user-full-name "Configure-Me")
-      (setq user-mail-addr "plz@configure.me")
-      (setq browse-url-generic-program "firefox")
+      (setq user-full-name "Sean Bradly")
+      (setq user-mail-addr "sb@nsfw.jp")
+      (setq browse-url-generic-program "chrome")
     #+end_src
 
 *** Load up personalization from a file
@@ -83,9 +109,10 @@
           (org-babel-load-file "~/.emacs.d/PrivateConfig.org"))
     #+end_src
 
+
 * Runtime Environment
 
-*** Setup
+*** Setup / Init
 
 ***** Helper functions
 
@@ -205,6 +232,7 @@
 
       #+end_src
 
+
 *** Emacs Package Management
 
 ***** Configure & Init packages.el
@@ -229,11 +257,9 @@
 
 ***** Automatically install required packages
 
-******* TODO Break this out better 
-
       You can modify the list below to include any packages that may be
       required later on during initialization. If any in the list are
-      mising, they will be automatically installed.
+      missing, they will be automatically installed.
 
       #+begin_src emacs-lisp
         (setq sb:package-list '())
@@ -303,6 +329,7 @@
             (package-install package)))
       #+end_src
 
+
 * Appearance
   
 *** Select a better font. 
@@ -354,14 +381,15 @@
     You can set per-mode themes later on
 
     #+begin_src emacs-lisp
-      ;;(load-theme 'cyberpunk t)
-      ;;(load-theme 'solarized-dark t)
-      ;;(load-theme 'abyss t)
+      (when (display-graphic-p) ;; if not in a terminal mode
 
-      (when (display-graphic-p)                              ;; if x windows mode
-        (load-theme 'base16-default-dark))                      ;; load theme
-
-
+        ;; Load a preferred theme
+        
+        ;;(load-theme 'base16-default-dark)
+        (load-theme 'cyberpunk t)
+        ;;(load-theme 'solarized-dark t)
+        ;;(load-theme 'abyss t)
+        ) 
     #+end_src
 
 *** Fullscreen mode [F11 key]
@@ -383,7 +411,11 @@
       ;(toggle-fullscreen)
     #+end_src
 
-*** Transparency 
+
+*** Transparency (disabled)
+    
+    Transparency is picky platform to platform, and most of the time
+    it just gets in the way.
 
     #+begin_src emacs-lisp
     ;  (set-frame-parameter (selected-frame) 'alpha '(93 50))
@@ -398,6 +430,8 @@
 * Default Emacs Behaviors
 *** No startup screen
 
+    Get's old after the 9000th time you see it :)
+
     #+begin_src emacs-lisp
       (setq inhibit-startup-screen t)
     #+end_src
@@ -409,6 +443,7 @@
     #+begin_src emacs-lisp
       (server-start)
     #+end_src
+
 *** Get rid of annoying backup files (Foo.bar~)
 
     This forces all backup files into a single system-wide directory
@@ -778,9 +813,9 @@
         (setq lean-rootdir
               (replace-regexp-in-string
                "\\(bin\\)?.lean.*" ""
-               (locate-file "lean"
+               (or (locate-file "lean"
                             (split-string (getenv "PATH") ":")
-                            (if (eq system-type 'windows-nt) '(".exe") nil))))
+                            (if (eq system-type 'windows-nt) '(".exe") nil)) "/usr")))
               
         (let  ((mylean-path (concat (file-name-as-directory lean-rootdir)
                                     (file-name-as-directory "share")
