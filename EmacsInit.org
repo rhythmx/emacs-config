@@ -67,6 +67,17 @@
 
       C-c ' : edit code block, enter again to exit
 
+***** Following links
+
+      C-c C-o : open link at point
+
+***** Emacs-client
+
+      C-x # : close buffer opened with emacs-client
+
+***** Inline LaTeX / GraphViz / etc previews
+      C-c C-c : evaluate inline code block
+      C-c C-x C-v : toggle inline image previews
 *** Prerequisites 
 
     Most pre-requisites are handled automatically and are
@@ -342,8 +353,8 @@
       ; List of fonts in order of preference
       (setq sb:preferred-fonts 
         '(
-           "Droid Sans Mono"
            "Consolas" 
+           "Droid Sans Mono"
            "Courier New" 
            "terminus" 
            "DejaVu Sans Mono"
@@ -355,7 +366,7 @@
 
             ; Font exists, so set it
             (progn (set-frame-font (car fontlist))
-                   (set-face-attribute 'default nil :height 100))
+                   (set-face-attribute 'default nil :height 110))
 
             ; Font not found, move on to next
             (progn (sb:set-font (cdr fontlist)))))
@@ -502,6 +513,14 @@
           (setq preview-fast-conversion 'off)
           (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.6))
 		#+end_src
+******* TODO Open links with chrome
+
+	TODO: Make this autodetect name/path to browser before defaulting
+
+	#+begin_src emacs-lisp
+          (setq browse-url-browser-function 'browse-url-generic
+                browse-url-generic-program "google-chrome-stable")
+	#+end_src
 ***** Personalized 
       Load org system config from file share, if present. One day I
       might make an example layout and commit that publicly too. Until
