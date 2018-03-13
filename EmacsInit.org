@@ -740,19 +740,23 @@
       #+end_src
 	  	  
 ***** Emacs Lisp
-      #+begin_src emacs-lisp
-        (defun sb:lisp-mode-hook ()
 
-          ;; Display line numbers
-          (linum-mode)
-          (setq linum-format "%4d \u2502"))
+******* TODO Set an alternate indent/parens style
 
-        (add-hook 'emacs-lisp-mode-hook 'sb:lisp-mode-hook)
+******* Default appearence 
+      	#+begin_src emacs-lisp
+          (defun sb:lisp-mode-hook ()
 
-        ;; Spell checker
-        (when sb:has-spell
-          (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode))
-      #+end_src
+            ;; Display line numbers
+            (linum-mode)
+            (setq linum-format "%4d \u2502"))
+
+          (add-hook 'emacs-lisp-mode-hook 'sb:lisp-mode-hook)
+
+          ;; Spell checker
+          (when sb:has-spell
+            (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode))
+      	#+end_src
 
 ***** LaTeX
 
