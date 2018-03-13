@@ -945,56 +945,57 @@
 *** Others
 ***** eshell
 	  #+begin_src emacs-lisp
-        ;; Eshell-prompt (credit to thierryvolpiatto via https://github.com/emacs-helm/helm/issues/1153))
-        (setq eshell-prompt-function
-              #'(lambda nil
-                  (concat
-                   (getenv "USER")
-                   "@"
-                   (system-name)
-                   ":"
-                   (abbreviate-file-name (eshell/pwd))
-                   (if (= (user-uid) 0) " # " " $ "))))
+            ;; Eshell-prompt (credit to thierryvolpiatto via https://github.com/emacs-helm/helm/issues/1153))
+            (setq eshell-prompt-function
+                  #'(lambda nil
+                      (concat
+                       (getenv "USER")
+                       "@"
+                       (system-name)
+                       ":"
+                       (abbreviate-file-name (eshell/pwd))
+                       (if (= (user-uid) 0) " # " " $ "))))
 
-        ;; Compatibility 24.2/24.3
-        (unless (fboundp 'eshell-pcomplete)
-          (defalias 'eshell-pcomplete 'pcomplete))
-        (unless (fboundp 'eshell-complete-lisp-symbol)
-          (defalias 'eshell-complete-lisp-symbol 'lisp-complete-symbol))
+            ;; Compatibility 24.2/24.3
+            (unless (fboundp 'eshell-pcomplete)
+              (defalias 'eshell-pcomplete 'pcomplete))
+            (unless (fboundp 'eshell-complete-lisp-symbol)
+              (defalias 'eshell-complete-lisp-symbol 'lisp-complete-symbol))
 
-        (add-hook 'eshell-mode-hook #'(lambda ()
-                                        ;; Helm completion with pcomplete
-                                        (setq eshell-cmpl-ignore-case t)
-                                        (eshell-cmpl-initialize)
-                                        (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
-                                        ;; Helm lisp completion
-                                        (define-key eshell-mode-map [remap eshell-complete-lisp-symbol] 'helm-lisp-completion-at-point)
-                                        ;; Helm completion on eshell history.
-                                        (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
-                                        ;; Eshell prompt
-                                        (set-face-attribute 'eshell-prompt nil :foreground "DeepSkyBlue")
-                                        ;; Allow yanking right now instead of returning "Mark set"
-                                        ;;(push-mark)
-                                        ))
+            (add-hook 'eshell-mode-hook #'(lambda ()
+                                            ;; Helm completion with pcomplete
+                                            (setq eshell-cmpl-ignore-case t)
+                                            (eshell-cmpl-initialize)
+                                            (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
+                                            ;; Helm lisp completion
+                                            (define-key eshell-mode-map [remap eshell-complete-lisp-symbol] 'helm-lisp-completion-at-point)
+                                            ;; Helm completion on eshell history.
+                                            (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
+                                            ;; Eshell prompt
+                                            (set-face-attribute 'eshell-prompt nil :foreground "DeepSkyBlue")
+                                            ;; Allow yanking right now instead of returning "Mark set"
+                                            ;;(push-mark)
+                                            ))
 
-        ;; Eshell history size
-        (setq eshell-history-size 1000) ; Same as env var HISTSIZE.
+            ;; Eshell history size
+            (setq eshell-history-size 1000) ; Same as env var HISTSIZE.
 
-        ;; Eshell-banner
-        (setq eshell-banner-message (format "%s %s\nwith Emacs %s on %s"
-                                            (propertize
-                                             "Eshell session started on"
-                                             'face '((:foreground "Goldenrod")))
-                                            (propertize
-                                             (format-time-string "%c")
-                                             'face '((:foreground "magenta")))
-                                            (propertize emacs-version
-                                                        'face '((:foreground "magenta")))
-                                            (propertize
-                                             (with-temp-buffer
-                                               (call-process "uname" nil t nil "-r")
-                                               (buffer-string))
-                                             'face '((:foreground "magenta")))))
+            ;; Eshell-banner
+            (if (not (eq system-type 'windows-nt)) ;; TODO: replace with something other than uname for windows supportf
+                (setq eshell-banner-message (format "%s %s\nwith Emacs %s on %s"
+                                                    (propertize
+                                                     "Eshell session started on"
+                                                     'face '((:foreground "Goldenrod")))
+                                                    (propertize
+                                                     (format-time-string "%c")
+                                                     'face '((:foreground "magenta")))
+                                                    (propertize emacs-version
+                                                                'face '((:foreground "magenta")))
+                                                    (propertize
+                                                     (with-temp-buffer
+                                                       (call-process "uname" nil t nil "-r")
+                                                       (buffer-string))
+                                                     'face '((:foreground "magenta"))))))
 	  #+end_src
 ***** ido | ido-ubiquitous (DEPRECATED by helm)
 
