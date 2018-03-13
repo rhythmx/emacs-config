@@ -283,7 +283,7 @@
                         solarized-theme
                         abyss-theme
                         base16-theme)))
-                      
+
         ;; Git integration
         (add-to-list 'sb:package-list 'magit)
 
@@ -329,10 +329,17 @@
         ;; Read docs for this 
         (add-to-list 'sb:package-list 'flycheck)
 
+        ;; Gtags might go away soon in favor of rtags
         (if sb:has-gtags
             (add-to-list 'sb:package-list
                          'helm-gtags))
 
+
+        ;; TODO
+        ;; Fancy mode line (from https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#mode-line)
+        ;; (add-to-list 'sb:package-list 'delight)
+        ;; (add-to-list 'sb:package-list 'spaceline)
+        ;; (add-to-list 'sb:package-list 'spaceline-config)
 
         (dolist (package sb:package-list)
           (when (not (package-installed-p package))
@@ -438,6 +445,7 @@
       (line-number-mode 1)
       (column-number-mode 1)
     #+end_src
+*** TODO Spaceline modeline
 * Default Emacs Behaviors
 *** No startup screen
 
@@ -466,7 +474,6 @@
     #+end_src
 
 * Setup Modes
-
 
 *** Helm (auto complete for most prompts)
 
