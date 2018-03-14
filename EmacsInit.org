@@ -128,13 +128,27 @@
 ***** Helper functions
 
 	  #+begin_src emacs-lisp
-        ;; Look for a required system binary
-        (defun sb:exe-in-path? (exefile)
-          (not (not
-                (locate-file exefile
-                             (split-string (getenv "PATH") ":")
-                             (if (eq system-type 'windows-nt) '(".exe") nil)
-                             'file-executable-p))))
+            ;; Extra PATHs to check (because windows ENV mgmt sucks)
+            (setq sb:aux-paths '(
+                                "C:/Program Files (x86)/Google/Chrome/Application"))
+
+            ;; System PATH as a list
+            (setq sb:path
+                 (append (split-string (getenv "PATH") (if (eq system-type 'windows-nt) ";" ":"))
+                         sb:aux-paths))
+
+            ;; Since Windows is still holding onto semantic filenames for dear life
+            (setq sb:exe-suffixes (if (eq system-type 'windows-nt) '(".exe") nil))
+
+            ;; Look for a required system binary
+            (defun sb:exe-in-path? (exefile)
+              (not (not ;; convert to pure bool
+                    (locate-file exefile sb:path sb:exe-suffixes 'file-executable-p))))
+
+            ;; Return full path of a basename in PATH
+            (defun sb:find-in-path (filename)
+              (locate-file filename sb:path sb:exe-suffixes))
+
 	  #+end_src
 
 ***** Setup $PATH 
@@ -243,6 +257,35 @@
 
       #+end_src
 
+***** Default browser
+
+      We'll take defaults from a sorted list of preferences. The first
+      one to exist will be the default. This shoul sbe good enough for
+      now but might possibly change depending on platform.
+
+#+begin_src emacs-lisp
+  (setq
+   sb:browser-preferences
+   '(
+     "chrome.exe"
+     "firefox.exe"
+     "chrome"
+     "google-chrome-stable"
+     "chromium"
+     "firefox"
+     "iceweasel"
+     )
+   )
+
+  (defun sb:set-browser (blist)
+    (if blist
+        (if (sb:exe-in-path? (car blist))
+            (setq browse-url-browser-function 'browse-url-generic
+                  browse-url-generic-program (sb:find-in-path (car blist)))
+          (sb:set-browser (cdr blist)))))
+
+  (sb:set-browser sb:browser-preferences)
+#+end_src
 
 *** Emacs Package Management
 
@@ -520,14 +563,6 @@
           (setq preview-fast-conversion 'off)
           (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.6))
 		#+end_src
-******* TODO Open links with chrome
-
-	TODO: Make this autodetect name/path to browser before defaulting
-
-	#+begin_src emacs-lisp
-          (setq browse-url-browser-function 'browse-url-generic
-                browse-url-generic-program "google-chrome-stable")
-	#+end_src
 ***** Personalized 
       Load org system config from file share, if present. One day I
       might make an example layout and commit that publicly too. Until
