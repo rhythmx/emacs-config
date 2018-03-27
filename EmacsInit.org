@@ -115,6 +115,22 @@
     * GraphViz
     * Dev tools (gcc, clang, ruby, etc.)
 
+**** Use-Package
+
+     The use-package package simplifies the installation,
+     initialization, configuration, and management of packages
+     installed through the package manager.
+
+     It will always be installed, as any other dependencies will
+     depend on it for proper operation.
+
+#+begin_src emacs-lisp
+  ;; Install use-package if not installed
+  (when (not (package-installed-p 'use-package))
+    (package-refresh-contents)
+    (package-install 'use-package))
+#+end_src
+
 * Personal/Local Information
 
   Some emacs features need access to sensitive data like passwords,
@@ -349,54 +365,71 @@
                         base16-theme)))
 
         ;; Git integration
-        (add-to-list 'sb:package-list 'magit)
+        ;;(add-to-list 'sb:package-list 'magit)
+        (use-package magit)
 
         ;; Lua source editing 
-        (add-to-list 'sb:package-list 'lua-mode)                
+        ;;(add-to-list 'sb:package-list 'lua-mode)                
+        (use-package lua-mode)
 
         ;; Haskell programming
-        (add-to-list 'sb:package-list 'haskell-mode)
+        ;;(add-to-list 'sb:package-list 'haskell-mode)
+        (use-package haskell-mode)
 
         ;; Markdown syntax highlighting
-        (add-to-list 'sb:package-list 'markdown-mode)
+        ;;(add-to-list 'sb:package-list 'markdown-mode)
+        (use-package markdown-mode)
 
         ;; Helm, better navigation and auto-complete  
-        (add-to-list 'sb:package-list 'helm)
+        ;;(add-to-list 'sb:package-list 'helm)
+        (use-package helm)
 
         ;; "projects" (helper commands centered around git repos)
-        (add-to-list 'sb:package-list 'projectile)                
+        ;;(add-to-list 'sb:package-list 'projectile)                
+        (use-package projectile)
 
         ;; Integrate projectile into helm
-        (add-to-list 'sb:package-list 'helm-projectile)
+        ;;(add-to-list 'sb:package-list 'helm-projectile)
+        (use-package helm-projectile)
 
         ;; Sidebar with directory listing and source outline 
-        (add-to-list 'sb:package-list 'sr-speedbar)                
+        ;;(add-to-list 'sb:package-list 'sr-speedbar)                
+        (use-package sr-speedbar)
 
         ;; Edit support for cmake (CMakeLists.txt)
-        (add-to-list 'sb:package-list 'cmake-mode)
+        ;;(add-to-list 'sb:package-list 'cmake-mode)
+        (use-package cmake-mode)
 
         ;; Auto-complete (COMP-lete ANY)
-        (add-to-list 'sb:package-list 'company)
+        ;;(add-to-list 'sb:package-list 'company)
+        (use-package company)
 
         ;; Pre-reqs for Lean mode (
-        (setq sb:package-list
-              (append
-               sb:package-list
-               '(dash dash-functional f s )))
+        ;;(setq sb:package-list
+        ;;      (append
+        ;;       sb:package-list
+        ;;       '(dash dash-functional f s )))
+        (use-package dash)
+        (use-package dash-functional)
+        (use-package f)
+        (use-package s)
 
         ;; Support editing source in source (like javascript inside html)
-        (add-to-list 'sb:package-list 'mmm-mode)
+        ;;(add-to-list 'sb:package-list 'mmm-mode)
+        (use-package mmm-mode)
 
         ;; Not sure why this is here
-        (add-to-list 'sb:package-list 'fill-column-indicator)         
+        ;;(add-to-list 'sb:package-list 'fill-column-indicator)         
+        (use-package fill-column-indicator)
 
         ;; Read docs for this 
-        (add-to-list 'sb:package-list 'flycheck)
+        ;;(add-to-list 'sb:package-list 'flycheck)
+        (use-package flycheck)
 
         ;; Gtags might go away soon in favor of rtags
-        (if sb:has-gtags
-            (add-to-list 'sb:package-list
-                         'helm-gtags))
+        ;;(if sb:has-gtags
+        ;;    (add-to-list 'sb:package-list
+        ;;                 'helm-gtags))
 
 
         ;; TODO
@@ -405,10 +438,10 @@
         ;; (add-to-list 'sb:package-list 'spaceline)
         ;; (add-to-list 'sb:package-list 'spaceline-config)
 
-        (dolist (package sb:package-list)
-          (when (not (package-installed-p package))
-            (package-refresh-contents)
-            (package-install package)))
+        ;;(dolist (package sb:package-list)
+        ;;  (when (not (package-installed-p package))
+        ;;    (package-refresh-contents)
+        ;;    (package-install package)))
       #+end_src
 
 
