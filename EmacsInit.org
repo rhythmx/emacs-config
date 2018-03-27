@@ -16,15 +16,18 @@
 *** Cheatsheet
 ***** Helm
 
+#+BEGIN_EXAMPLE
       Most any prompt launches a helm session.
 
       C-j   : Enter directory
       C-l   : Go up a directory
       C-SPC : mark file
       M-a   : mark all files
+#+END_EXAMPLE
 
 ***** Helm-projectile (prefix: C-c p)
 
+#+BEGIN_EXAMPLE
       Commands that operate on projects
 
       C-c p p : switch project
@@ -32,52 +35,70 @@
       C-c p k : kill all buffers for project
       C-c p d : find dir in project
       C-c p c : compile project
-      
+#+END_EXAMPLE
+
 ***** Helm-gtags (prefix: C-c g)
 
+#+BEGIN_EXAMPLE
       M-. : find a tag
       M-* : pop tag stack
       C-c g t : find a tag
       C-c g r : find references
+#+END_EXAMPLE
 
 ***** Semantic 
 
+#+BEGIN_EXAMPLE
       C-c spc : complete symbol
       C-c j : find symbol
       semantic-ia-show-summary
-
-
+#+END_EXAMPLE
 
 ***** Speedbar
 
+#+BEGIN_EXAMPLE
       C-c s o : open speedbar
       C-c s c : close speedbar
       C-c s t : toggle speedbar
-
+#+END_EXAMPLE
 
 ***** WindMove
 
+#+BEGIN_EXAMPLE
       [shift] + arrow key : focus switch to window in that direction
+#+END_EXAMPLE
 
 ***** FullScreen
 
+#+BEGIN_EXAMPLE
       F11 : toggle fullscreen mode 
+#+END_EXAMPLE
 
 ***** Editing nested languages
 
+#+BEGIN_EXAMPLE
       C-c ' : edit code block, enter again to exit
+#+END_EXAMPLE
 
 ***** Following links
 
+#+BEGIN_EXAMPLE
       C-c C-o : open link at point
+#+END_EXAMPLE
 
 ***** Emacs-client
 
+#+BEGIN_EXAMPLE
       C-x # : close buffer opened with emacs-client
+#+END_EXAMPLE
 
 ***** Inline LaTeX / GraphViz / etc previews
+
+#+BEGIN_EXAMPLE
       C-c C-c : evaluate inline code block
       C-c C-x C-v : toggle inline image previews
+#+END_EXAMPLE
+
 *** Prerequisites 
 
     Most pre-requisites are handled automatically and are
