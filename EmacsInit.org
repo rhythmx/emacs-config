@@ -149,13 +149,27 @@
 ***** Helper functions
 
 	  #+begin_src emacs-lisp
-        ;; Look for a required system binary
-        (defun sb:exe-in-path? (exefile)
-          (not (not
-                (locate-file exefile
-                             (split-string (getenv "PATH") ":")
-                             (if (eq system-type 'windows-nt) '(".exe") nil)
-                             'file-executable-p))))
+            ;; Extra PATHs to check (because windows ENV mgmt sucks)
+            (setq sb:aux-paths '(
+                                "C:/Program Files (x86)/Google/Chrome/Application"))
+
+            ;; System PATH as a list
+            (setq sb:path
+                 (append (split-string (getenv "PATH") (if (eq system-type 'windows-nt) ";" ":"))
+                         sb:aux-paths))
+
+            ;; Since Windows is still holding onto semantic filenames for dear life
+            (setq sb:exe-suffixes (if (eq system-type 'windows-nt) '(".exe") nil))
+
+            ;; Look for a required system binary
+            (defun sb:exe-in-path? (exefile)
+              (not (not ;; convert to pure bool
+                    (locate-file exefile sb:path sb:exe-suffixes 'file-executable-p))))
+
+            ;; Return full path of a basename in PATH
+            (defun sb:find-in-path (filename)
+              (locate-file filename sb:path sb:exe-suffixes))
+
 	  #+end_src
 
 ***** Setup $PATH 
@@ -264,6 +278,35 @@
 
       #+end_src
 
+***** Default browser
+
+      We'll take defaults from a sorted list of preferences. The first
+      one to exist will be the default. This shoul sbe good enough for
+      now but might possibly change depending on platform.
+
+#+begin_src emacs-lisp
+  (setq
+   sb:browser-preferences
+   '(
+     "chrome.exe"
+     "firefox.exe"
+     "chrome"
+     "google-chrome-stable"
+     "chromium"
+     "firefox"
+     "iceweasel"
+     )
+   )
+
+  (defun sb:set-browser (blist)
+    (if blist
+        (if (sb:exe-in-path? (car blist))
+            (setq browse-url-browser-function 'browse-url-generic
+                  browse-url-generic-program (sb:find-in-path (car blist)))
+          (sb:set-browser (cdr blist)))))
+
+  (sb:set-browser sb:browser-preferences)
+#+end_src
 
 *** Emacs Package Management
 
@@ -304,7 +347,7 @@
                         solarized-theme
                         abyss-theme
                         base16-theme)))
-                      
+
         ;; Git integration
         (add-to-list 'sb:package-list 'magit)
 
@@ -350,10 +393,17 @@
         ;; Read docs for this 
         (add-to-list 'sb:package-list 'flycheck)
 
+        ;; Gtags might go away soon in favor of rtags
         (if sb:has-gtags
             (add-to-list 'sb:package-list
                          'helm-gtags))
 
+
+        ;; TODO
+        ;; Fancy mode line (from https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#mode-line)
+        ;; (add-to-list 'sb:package-list 'delight)
+        ;; (add-to-list 'sb:package-list 'spaceline)
+        ;; (add-to-list 'sb:package-list 'spaceline-config)
 
         (dolist (package sb:package-list)
           (when (not (package-installed-p package))
@@ -459,6 +509,7 @@
       (line-number-mode 1)
       (column-number-mode 1)
     #+end_src
+*** TODO Spaceline modeline
 * Default Emacs Behaviors
 *** No startup screen
 
@@ -487,7 +538,6 @@
     #+end_src
 
 * Setup Modes
-
 
 *** Helm (auto complete for most prompts)
 
@@ -534,14 +584,6 @@
           (setq preview-fast-conversion 'off)
           (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.6))
 		#+end_src
-******* TODO Open links with chrome
-
-	TODO: Make this autodetect name/path to browser before defaulting
-
-	#+begin_src emacs-lisp
-          (setq browse-url-browser-function 'browse-url-generic
-                browse-url-generic-program "google-chrome-stable")
-	#+end_src
 ***** Personalized 
       Load org system config from file share, if present. One day I
       might make an example layout and commit that publicly too. Until
@@ -761,19 +803,23 @@
       #+end_src
 	  	  
 ***** Emacs Lisp
-      #+begin_src emacs-lisp
-        (defun sb:lisp-mode-hook ()
 
-          ;; Display line numbers
-          (linum-mode)
-          (setq linum-format "%4d \u2502"))
+******* TODO Set an alternate indent/parens style
 
-        (add-hook 'emacs-lisp-mode-hook 'sb:lisp-mode-hook)
+******* Default appearence 
+      	#+begin_src emacs-lisp
+          (defun sb:lisp-mode-hook ()
 
-        ;; Spell checker
-        (when sb:has-spell
-          (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode))
-      #+end_src
+            ;; Display line numbers
+            (linum-mode)
+            (setq linum-format "%4d \u2502"))
+
+          (add-hook 'emacs-lisp-mode-hook 'sb:lisp-mode-hook)
+
+          ;; Spell checker
+          (when sb:has-spell
+            (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode))
+      	#+end_src
 
 ***** LaTeX
 
@@ -962,56 +1008,57 @@
 *** Others
 ***** eshell
 	  #+begin_src emacs-lisp
-        ;; Eshell-prompt (credit to thierryvolpiatto via https://github.com/emacs-helm/helm/issues/1153))
-        (setq eshell-prompt-function
-              #'(lambda nil
-                  (concat
-                   (getenv "USER")
-                   "@"
-                   (system-name)
-                   ":"
-                   (abbreviate-file-name (eshell/pwd))
-                   (if (= (user-uid) 0) " # " " $ "))))
+            ;; Eshell-prompt (credit to thierryvolpiatto via https://github.com/emacs-helm/helm/issues/1153))
+            (setq eshell-prompt-function
+                  #'(lambda nil
+                      (concat
+                       (getenv "USER")
+                       "@"
+                       (system-name)
+                       ":"
+                       (abbreviate-file-name (eshell/pwd))
+                       (if (= (user-uid) 0) " # " " $ "))))
 
-        ;; Compatibility 24.2/24.3
-        (unless (fboundp 'eshell-pcomplete)
-          (defalias 'eshell-pcomplete 'pcomplete))
-        (unless (fboundp 'eshell-complete-lisp-symbol)
-          (defalias 'eshell-complete-lisp-symbol 'lisp-complete-symbol))
+            ;; Compatibility 24.2/24.3
+            (unless (fboundp 'eshell-pcomplete)
+              (defalias 'eshell-pcomplete 'pcomplete))
+            (unless (fboundp 'eshell-complete-lisp-symbol)
+              (defalias 'eshell-complete-lisp-symbol 'lisp-complete-symbol))
 
-        (add-hook 'eshell-mode-hook #'(lambda ()
-                                        ;; Helm completion with pcomplete
-                                        (setq eshell-cmpl-ignore-case t)
-                                        (eshell-cmpl-initialize)
-                                        (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
-                                        ;; Helm lisp completion
-                                        (define-key eshell-mode-map [remap eshell-complete-lisp-symbol] 'helm-lisp-completion-at-point)
-                                        ;; Helm completion on eshell history.
-                                        (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
-                                        ;; Eshell prompt
-                                        (set-face-attribute 'eshell-prompt nil :foreground "DeepSkyBlue")
-                                        ;; Allow yanking right now instead of returning "Mark set"
-                                        ;;(push-mark)
-                                        ))
+            (add-hook 'eshell-mode-hook #'(lambda ()
+                                            ;; Helm completion with pcomplete
+                                            (setq eshell-cmpl-ignore-case t)
+                                            (eshell-cmpl-initialize)
+                                            (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
+                                            ;; Helm lisp completion
+                                            (define-key eshell-mode-map [remap eshell-complete-lisp-symbol] 'helm-lisp-completion-at-point)
+                                            ;; Helm completion on eshell history.
+                                            (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
+                                            ;; Eshell prompt
+                                            (set-face-attribute 'eshell-prompt nil :foreground "DeepSkyBlue")
+                                            ;; Allow yanking right now instead of returning "Mark set"
+                                            ;;(push-mark)
+                                            ))
 
-        ;; Eshell history size
-        (setq eshell-history-size 1000) ; Same as env var HISTSIZE.
+            ;; Eshell history size
+            (setq eshell-history-size 1000) ; Same as env var HISTSIZE.
 
-        ;; Eshell-banner
-        (setq eshell-banner-message (format "%s %s\nwith Emacs %s on %s"
-                                            (propertize
-                                             "Eshell session started on"
-                                             'face '((:foreground "Goldenrod")))
-                                            (propertize
-                                             (format-time-string "%c")
-                                             'face '((:foreground "magenta")))
-                                            (propertize emacs-version
-                                                        'face '((:foreground "magenta")))
-                                            (propertize
-                                             (with-temp-buffer
-                                               (call-process "uname" nil t nil "-r")
-                                               (buffer-string))
-                                             'face '((:foreground "magenta")))))
+            ;; Eshell-banner
+            (if (not (eq system-type 'windows-nt)) ;; TODO: replace with something other than uname for windows supportf
+                (setq eshell-banner-message (format "%s %s\nwith Emacs %s on %s"
+                                                    (propertize
+                                                     "Eshell session started on"
+                                                     'face '((:foreground "Goldenrod")))
+                                                    (propertize
+                                                     (format-time-string "%c")
+                                                     'face '((:foreground "magenta")))
+                                                    (propertize emacs-version
+                                                                'face '((:foreground "magenta")))
+                                                    (propertize
+                                                     (with-temp-buffer
+                                                       (call-process "uname" nil t nil "-r")
+                                                       (buffer-string))
+                                                     'face '((:foreground "magenta"))))))
 	  #+end_src
 ***** ido | ido-ubiquitous (DEPRECATED by helm)
 
