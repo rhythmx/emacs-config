@@ -115,6 +115,27 @@
     * GraphViz
     * Dev tools (gcc, clang, ruby, etc.)
 
+**** Configure & Init packages.el
+
+     Set up the package menagement system and add some of the more
+     popular public package repositories. This should sync with the
+     remote servers to ensure package lists are up-to-date.
+
+     #+begin_src emacs-lisp
+       (require 'package)
+
+       (add-to-list 'package-archives
+			'("melpa" . "http://melpa.milkbox.net/packages/"))
+
+       ;; Some other package sources
+       ;; '("elpa" . "http://tromey.com/elpa/") ;; ELPA is the official emacs repo (iirc?)
+       ;; '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
+       ;; '("marmalade" . "http://marmalade-repo.org/packages/")
+
+       (package-initialize)
+     #+end_src
+
+
 **** Use-Package
 
      The use-package package simplifies the installation,
@@ -326,26 +347,6 @@
 
 *** Emacs Package Management
 
-***** Configure & Init packages.el
-
-      Set up the package menagement system and add some of the more
-      popular public package repositories. This should sync with the
-      remote servers to ensure package lists are up-to-date.
-
-      #+begin_src emacs-lisp
-      	(require 'package)
-
-      	(add-to-list 'package-archives
-                   	 '("melpa" . "http://melpa.milkbox.net/packages/"))
-
-      	;; Some other package sources
-      	;; '("elpa" . "http://tromey.com/elpa/") ;; ELPA is the official emacs repo (iirc?)
-      	;; '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
-      	;; '("marmalade" . "http://marmalade-repo.org/packages/")
-
-      	(package-initialize)
-      #+end_src
-
 ***** Automatically install required packages
 
       You can modify the list below to include any packages that may be
@@ -365,71 +366,71 @@
                         base16-theme)))
 
         ;; Git integration
-        ;;(add-to-list 'sb:package-list 'magit)
+        (add-to-list 'sb:package-list 'magit)
         (use-package magit)
 
         ;; Lua source editing 
-        ;;(add-to-list 'sb:package-list 'lua-mode)                
+        (add-to-list 'sb:package-list 'lua-mode)                
         (use-package lua-mode)
 
         ;; Haskell programming
-        ;;(add-to-list 'sb:package-list 'haskell-mode)
+        (add-to-list 'sb:package-list 'haskell-mode)
         (use-package haskell-mode)
 
         ;; Markdown syntax highlighting
-        ;;(add-to-list 'sb:package-list 'markdown-mode)
+        (add-to-list 'sb:package-list 'markdown-mode)
         (use-package markdown-mode)
 
         ;; Helm, better navigation and auto-complete  
-        ;;(add-to-list 'sb:package-list 'helm)
+        (add-to-list 'sb:package-list 'helm)
         (use-package helm)
 
         ;; "projects" (helper commands centered around git repos)
-        ;;(add-to-list 'sb:package-list 'projectile)                
+        (add-to-list 'sb:package-list 'projectile)                
         (use-package projectile)
 
         ;; Integrate projectile into helm
-        ;;(add-to-list 'sb:package-list 'helm-projectile)
+        (add-to-list 'sb:package-list 'helm-projectile)
         (use-package helm-projectile)
 
         ;; Sidebar with directory listing and source outline 
-        ;;(add-to-list 'sb:package-list 'sr-speedbar)                
+        (add-to-list 'sb:package-list 'sr-speedbar)                
         (use-package sr-speedbar)
 
         ;; Edit support for cmake (CMakeLists.txt)
-        ;;(add-to-list 'sb:package-list 'cmake-mode)
+        (add-to-list 'sb:package-list 'cmake-mode)
         (use-package cmake-mode)
 
         ;; Auto-complete (COMP-lete ANY)
-        ;;(add-to-list 'sb:package-list 'company)
+        (add-to-list 'sb:package-list 'company)
         (use-package company)
 
         ;; Pre-reqs for Lean mode (
-        ;;(setq sb:package-list
-        ;;      (append
-        ;;       sb:package-list
-        ;;       '(dash dash-functional f s )))
+        (setq sb:package-list
+              (append
+               sb:package-list
+               '(dash dash-functional f s )))
         (use-package dash)
         (use-package dash-functional)
         (use-package f)
         (use-package s)
 
         ;; Support editing source in source (like javascript inside html)
-        ;;(add-to-list 'sb:package-list 'mmm-mode)
+        (add-to-list 'sb:package-list 'mmm-mode)
         (use-package mmm-mode)
 
         ;; Not sure why this is here
-        ;;(add-to-list 'sb:package-list 'fill-column-indicator)         
+        (add-to-list 'sb:package-list 'fill-column-indicator)         
         (use-package fill-column-indicator)
 
         ;; Read docs for this 
-        ;;(add-to-list 'sb:package-list 'flycheck)
+        (add-to-list 'sb:package-list 'flycheck)
         (use-package flycheck)
 
         ;; Gtags might go away soon in favor of rtags
-        ;;(if sb:has-gtags
-        ;;    (add-to-list 'sb:package-list
-        ;;                 'helm-gtags))
+        (if sb:has-gtags
+            (add-to-list 'sb:package-list
+                         'helm-gtags))
 
 
         ;; TODO
@@ -438,10 +439,10 @@
         ;; (add-to-list 'sb:package-list 'spaceline)
         ;; (add-to-list 'sb:package-list 'spaceline-config)
 
-        ;;(dolist (package sb:package-list)
-        ;;  (when (not (package-installed-p package))
-        ;;    (package-refresh-contents)
-        ;;    (package-install package)))
+        (dolist (package sb:package-list)
+          (when (not (package-installed-p package))
+            (package-refresh-contents)
+            (package-install package)))
       #+end_src
 
 
