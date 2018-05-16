@@ -1,103 +1,112 @@
 #+TITLE: Sean's Emacs Configuration
+#+STARTUP: hidestars odd
 
 * Quick Start
 
-#+begin_src bash
-  cd $HOME
-  mv .emacs.d .emacs.d.saved
-  git clone github.com:rhythmx/emacs-config .emacs.d
-#+end_src
+  Embedded within the text of this file is my actual emacs
+  configuration. It uses org-babel mode to document everything inline
+  ala 'literate programming'. The inline code blocks are evaluated
+  directly by emacs on startup.
 
-  Embedded withing the text of this file is my actual emacs
-  configuration. It uses org-babel mode to document everything inline.
+  To use this configuration, run the following:
+  
+  #+begin_src shell
+    cd $HOME
+    mv .emacs.d .emacs.d.saved
+    git clone github.com:rhythmx/emacs-config .emacs.d
+  #+end_src
 
 * Documentation
 
 *** Cheatsheet
+
+    As I add and remove things from my configuration I tend to forget
+    what functionality is available with what keybindings. Here is
+    some at-a-glance documentation to help keep track of all of it.
+
 ***** Helm
 
-#+BEGIN_EXAMPLE
-      Most any prompt launches a helm session.
+      #+BEGIN_EXAMPLE
+        Most any prompt launches a helm session.
 
-      C-j   : Enter directory
-      C-l   : Go up a directory
-      C-SPC : mark file
-      M-a   : mark all files
-#+END_EXAMPLE
+        C-j   : Enter directory
+        C-l   : Go up a directory
+        C-SPC : mark file
+        M-a   : mark all files
+      #+END_EXAMPLE
 
 ***** Helm-projectile (prefix: C-c p)
 
-#+BEGIN_EXAMPLE
-      Commands that operate on projects
+      #+BEGIN_EXAMPLE
+        Commands that operate on projects
 
-      C-c p p : switch project
-      C-c p f : find file in project 
-      C-c p k : kill all buffers for project
-      C-c p d : find dir in project
-      C-c p c : compile project
-#+END_EXAMPLE
+        C-c p p : switch project
+        C-c p f : find file in project 
+        C-c p k : kill all buffers for project
+        C-c p d : find dir in project
+        C-c p c : compile project
+      #+END_EXAMPLE
+***** Emacs-client
 
-***** Helm-gtags (prefix: C-c g)
-
-#+BEGIN_EXAMPLE
-      M-. : find a tag
-      M-* : pop tag stack
-      C-c g t : find a tag
-      C-c g r : find references
-#+END_EXAMPLE
+      #+BEGIN_EXAMPLE
+        C-x # : close buffer opened with emacs-client
+      #+END_EXAMPLE
 
 ***** Semantic 
 
-#+BEGIN_EXAMPLE
-      C-c spc : complete symbol
-      C-c j : find symbol
-      semantic-ia-show-summary
-#+END_EXAMPLE
+      #+BEGIN_EXAMPLE
+        C-c spc : complete symbol
+        C-c j : find symbol
+        semantic-ia-show-summary
+      #+END_EXAMPLE
 
 ***** Speedbar
 
-#+BEGIN_EXAMPLE
-      C-c s o : open speedbar
-      C-c s c : close speedbar
-      C-c s t : toggle speedbar
-#+END_EXAMPLE
+      #+BEGIN_EXAMPLE
+        C-c s o : open speedbar
+        C-c s c : close speedbar
+        C-c s t : toggle speedbar
+      #+END_EXAMPLE
 
 ***** WindMove
 
-#+BEGIN_EXAMPLE
-      [shift] + arrow key : focus switch to window in that direction
-#+END_EXAMPLE
+      #+BEGIN_EXAMPLE
+        [shift] + arrow key : focus switch to window in that direction
+      #+END_EXAMPLE
 
 ***** FullScreen
 
-#+BEGIN_EXAMPLE
-      F11 : toggle fullscreen mode 
-#+END_EXAMPLE
+      #+BEGIN_EXAMPLE
+        F11 : toggle fullscreen mode 
+      #+END_EXAMPLE
 
 ***** Editing nested languages
 
-#+BEGIN_EXAMPLE
-      C-c ' : edit code block, enter again to exit
-#+END_EXAMPLE
+      #+BEGIN_EXAMPLE
+        C-c ' : edit code block, enter again to exit
+      #+END_EXAMPLE
 
 ***** Following links
 
-#+BEGIN_EXAMPLE
-      C-c C-o : open link at point
-#+END_EXAMPLE
-
-***** Emacs-client
-
-#+BEGIN_EXAMPLE
-      C-x # : close buffer opened with emacs-client
-#+END_EXAMPLE
+      #+BEGIN_EXAMPLE
+        C-c C-o : open link at point
+      #+END_EXAMPLE
 
 ***** Inline LaTeX / GraphViz / etc previews
 
-#+BEGIN_EXAMPLE
-      C-c C-c : evaluate inline code block
-      C-c C-x C-v : toggle inline image previews
-#+END_EXAMPLE
+      #+BEGIN_EXAMPLE
+        C-c C-c : evaluate inline code block
+        C-c C-x C-v : toggle inline image previews
+      #+END_EXAMPLE
+
+***** Helm-gtags (prefix: C-c g)
+
+      #+BEGIN_EXAMPLE
+        M-. : find a tag
+        M-* : pop tag stack
+        C-c g t : find a tag
+        C-c g r : find references
+      #+END_EXAMPLE
 
 *** Prerequisites 
 
@@ -115,43 +124,15 @@
     * GraphViz
     * Dev tools (gcc, clang, ruby, etc.)
 
-**** Configure & Init packages.el
+*** Configuration
 
-     Set up the package menagement system and add some of the more
-     popular public package repositories. This should sync with the
-     remote servers to ensure package lists are up-to-date.
+    This is a handy place to enable/disable larger features
 
-     #+begin_src emacs-lisp
-       (require 'package)
-
-       (add-to-list 'package-archives
-			'("melpa" . "http://melpa.milkbox.net/packages/"))
-
-       ;; Some other package sources
-       ;; '("elpa" . "http://tromey.com/elpa/") ;; ELPA is the official emacs repo (iirc?)
-       ;; '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
-       ;; '("marmalade" . "http://marmalade-repo.org/packages/")
-
-       (package-initialize)
-     #+end_src
-
-
-**** Use-Package
-
-     The use-package package simplifies the installation,
-     initialization, configuration, and management of packages
-     installed through the package manager.
-
-     It will always be installed, as any other dependencies will
-     depend on it for proper operation.
-
-#+begin_src emacs-lisp
-  ;; Install use-package if not installed
-  (when (not (package-installed-p 'use-package))
-    (package-refresh-contents)
-    (package-install 'use-package))
-#+end_src
-
+    #+begin_src emacs-lisp
+      (setq sb:helm-enabled t)
+      (setq sb:speedbar-enabled t)
+      (setq sb:lean-enabled nil)
+    #+end_src
 * Personal/Local Information
 
   Some emacs features need access to sensitive data like passwords,
@@ -185,111 +166,145 @@
 
 ***** Helper functions
 
-	  #+begin_src emacs-lisp
-            ;; Extra PATHs to check (because windows ENV mgmt sucks)
-            (setq sb:aux-paths '(
-                                "C:/Program Files (x86)/Google/Chrome/Application"))
+      #+begin_src emacs-lisp
+        ;; Extra PATHs to check (because windows ENV mgmt sucks)
+        (setq sb:aux-paths '(
+                            "C:/Program Files (x86)/Google/Chrome/Application"))
 
-            ;; System PATH as a list
-            (setq sb:path
-                 (append (split-string (getenv "PATH") (if (eq system-type 'windows-nt) ";" ":"))
-                         sb:aux-paths))
+        ;; System PATH as a list
+        (setq sb:path
+             (append (split-string (getenv "PATH") (if (eq system-type 'windows-nt) ";" ":"))
+                     sb:aux-paths))
 
-            ;; Since Windows is still holding onto semantic filenames for dear life
-            (setq sb:exe-suffixes (if (eq system-type 'windows-nt) '(".exe") nil))
+        ;; Since Windows is still holding onto semantic filenames for dear life
+        (setq sb:exe-suffixes (if (eq system-type 'windows-nt) '(".exe") nil))
 
-            ;; Look for a required system binary
-            (defun sb:exe-in-path? (exefile)
-              (not (not ;; convert to pure bool
-                    (locate-file exefile sb:path sb:exe-suffixes 'file-executable-p))))
+        ;; Look for a required system binary
+        (defun sb:exe-in-path? (exefile)
+          (not (not ;; convert to pure bool
+                (locate-file exefile sb:path sb:exe-suffixes 'file-executable-p))))
 
-            ;; Return full path of a basename in PATH
-            (defun sb:find-in-path (filename)
-              (locate-file filename sb:path sb:exe-suffixes))
-
-	  #+end_src
+        ;; Return full path of a basename in PATH
+        (defun sb:find-in-path (filename)
+          (locate-file filename sb:path sb:exe-suffixes))
+      #+end_src
 
 ***** Setup $PATH 
 	  
-	  Load an interactive shell so all paths from .bashrc are
-	  included. This helps especially for certain scripting
-	  environments that dynamically configure their environment. 
+      Load an interactive shell so all paths from .bashrc are
+      included. This helps especially for certain scripting
+      environments that dynamically configure their environment.
 
-	  #+begin_src emacs-lisp
-		(defun sb:set-path-from-shell ()
-		  (let ((path-from-shell (replace-regexp-in-string
-								  "[ \t\n]*$"
-								  ""
-								  (shell-command-to-string "$SHELL --login -c 'echo $PATH'"))))
-			(setenv "PATH" path-from-shell)
-			(setq eshell-path-env path-from-shell) ; for eshell users
-			(setq exec-path (split-string path-from-shell path-separator))))
+      #+begin_src emacs-lisp
+        (defun sb:set-path-from-shell ()
+          (let ((path-from-shell (replace-regexp-in-string
+                                                          "[ \t\n]*$"
+                                                          ""
+                                                          (shell-command-to-string "$SHELL --login -c 'echo $PATH'"))))
+                (setenv "PATH" path-from-shell)
+                (setq eshell-path-env path-from-shell) ; for eshell users
+                (setq exec-path (split-string path-from-shell path-separator))))
 
-		;; Windows can't handle the bash
-		(if (not (eq system-type 'windows-nt))
-			(sb:set-path-from-shell))
-	  #+end_src
+        ;; Windows can't handle the bash
+        (if (not (eq system-type 'windows-nt))
+                (sb:set-path-from-shell))
+      #+end_src
 
+***** Package Management
 
+      Set up the package management system and add some of the more
+      popular public package repositories. This should sync with the
+      remote servers to ensure package lists are up-to-date.
+
+      #+begin_src emacs-lisp
+       	(require 'package)
+
+       	(add-to-list 'package-archives
+			 '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+       	;; Some other package sources
+       	;; '("elpa" . "http://tromey.com/elpa/") ;; ELPA is the official emacs repo (iirc?)
+       	;; '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
+       	;; '("marmalade" . "http://marmalade-repo.org/packages/")
+
+       	(package-initialize)
+      #+end_src
+
+      The use-package package simplifies the installation,
+      initialization, configuration, and management of packages
+      installed through the package manager.
+
+      It will always be installed, as any subsequent initialization
+      will depend on it for proper operation. This also serves as a
+      clean way to refresh the package archives on the first run only.
+
+      #+begin_src emacs-lisp
+        ;; Install use-package if not installed
+        (when (not (package-installed-p 'use-package))
+          (package-refresh-contents)
+          (package-install 'use-package))
+      #+end_src
+
+     
 *** System Prerequisites
 
-	We should check for any external programs required by later
-	configuration. If they aren't present, handle this gracefully by
-	presenting an error or warning message and quietly disabling the
-	dependent functionality.
+    We should check for any external programs required by later
+    configuration like programming language tools or system utilities
+    that have special emacs modes, etc. If they aren't present,
+    handle this gracefully by presenting an error or warning message
+    and quietly disabling the dependent functionality.
 
 ***** GNU Global (aka GTAGS)
 	  
-	  Global is basically a replacement for CTAGS. It indexes many
-	  different types of source files and allows any editor to easily
-	  add advanced source code navigation.
+      Global is basically a replacement for CTAGS. It indexes many
+      different types of source files and allows any editor to easily
+      add advanced source code navigation.
+      
+      This configuration combines uses gtags & helm integration if
+      global is found on the system. If not, loading of this plugin is
+      skipped.
 
-	  This configuration combines uses gtags & helm integration if
-	  global is found on the system. If not, loading of this plugin is
-	  skipped.
+      Install https://aur.archlinux.org/global.git and https://aur.archlinux.org/idutils.git
 
-	  Install https://aur.archlinux.org/global.git and https://aur.archlinux.org/idutils.git
-
-	  #+begin_src emacs-lisp
-            (setq sb:has-gtags nil)
-            (if (not (sb:exe-in-path? "gtags"))
-                (warn "GNU Global does not appear to be installed. Disabling helm+gtags")
-              (setq sb:has-gtags t))
-	  #+end_src
+      #+begin_src emacs-lisp
+        (setq sb:has-gtags nil)
+        (if (not (sb:exe-in-path? "gtags"))
+            (warn "GNU Global does not appear to be installed. Disabling helm+gtags")
+          (setq sb:has-gtags t))
+      #+end_src
 
 ***** GPG
 	  
-	  #+begin_src emacs-lisp
-            (setq sb:has-gpg nil)
-            (if (not (sb:exe-in-path? "gpg"))
-                (warn "GPG does not appear to be installed. y u no SECURITY!?")
-              (setq sb:has-gpg t))
-	  #+end_src
-	  
+      #+begin_src emacs-lisp
+        (setq sb:has-gpg nil)
+        (if (not (sb:exe-in-path? "gpg"))
+            (warn "GPG does not appear to be installed. y u no SECURITY!?")
+          (setq sb:has-gpg t))
+      #+end_src
 	  
 ***** LaTeX
 
-	  pacman -Ss texlive-core texlive-latexextra
+      #+begin_src shell
+        pacman -Ss texlive-core texlive-latexextra
+      #+end_src
 
-	  #+begin_src emacs-lisp
-            (setq sb:has-latex nil)
-            (if (not (sb:exe-in-path? "latex"))
-                (warn "LaTeX is not installed. Disabling previews in org-mode")
-              (setq sb:has-latex t))
-	  #+end_src
-
+      #+begin_src emacs-lisp
+        (setq sb:has-latex nil)
+        (if (not (sb:exe-in-path? "latex"))
+            (warn "LaTeX is not installed. Disabling previews in org-mode")
+          (setq sb:has-latex t))
+      #+end_src
 
 ***** Graphviz
 
-	  #+begin_src emacs-lisp
-            (setq sb:has-graphviz nil)
-            (if (not (sb:exe-in-path? "dot"))
-                (warn "graphviz is not installed. Inline dot previews will not be available")
-              (setq sb:has-graphviz t))
-	  #+end_src
+      #+begin_src emacs-lisp
+        (setq sb:has-graphviz nil)
+        (if (not (sb:exe-in-path? "dot"))
+            (warn "graphviz is not installed. Inline dot previews will not be available")
+          (setq sb:has-graphviz t))
+      #+end_src
 
 ***** Mail (offlineimap / mu / mu4e)
-
       
 ******* Check if this system does mu4e mail
 	#+begin_src emacs-lisp
@@ -302,7 +317,6 @@
 ***** ispell + dictionary
       
       #+begin_src emacs-lisp
-
         (setq sb:has-spell nil)
         (if (not (sb:exe-in-path? "aspell"))
             (warn "ispell/aspell does not appear to be installed. Disabling spell checking globally")
@@ -312,138 +326,38 @@
                  (string= (shell-command-to-string "aspell dicts") ""))
           (warn "spell checker is install but no dictionary is available. disabling spell checking globally")
           (setq sb:has-spell nil))
-
       #+end_src
 
 ***** Default browser
 
       We'll take defaults from a sorted list of preferences. The first
-      one to exist will be the default. This shoul sbe good enough for
+      one to exist will be the default. This should be good enough for
       now but might possibly change depending on platform.
 
-#+begin_src emacs-lisp
-  (setq
-   sb:browser-preferences
-   '(
-     "chrome.exe"
-     "firefox.exe"
-     "chrome"
-     "google-chrome-stable"
-     "chromium"
-     "firefox"
-     "iceweasel"
-     )
-   )
-
-  (defun sb:set-browser (blist)
-    (if blist
-        (if (sb:exe-in-path? (car blist))
-            (setq browse-url-browser-function 'browse-url-generic
-                  browse-url-generic-program (sb:find-in-path (car blist)))
-          (sb:set-browser (cdr blist)))))
-
-  (sb:set-browser sb:browser-preferences)
-#+end_src
-
-*** Emacs Package Management
-
-***** Automatically install required packages
-
-      You can modify the list below to include any packages that may be
-      required later on during initialization. If any in the list are
-      missing, they will be automatically installed.
-
       #+begin_src emacs-lisp
-        (setq sb:package-list '())
+        (setq
+         sb:browser-preferences
+         '(
+           "chrome.exe"
+           "firefox.exe"
+           "chrome"
+           "google-chrome-stable"
+           "chromium"
+           "firefox"
+           "iceweasel"
+           )
+         )
 
-        ;; Some of my favorite themes
-        (setq sb:package-list
-              (append sb:package-list
-                      '(zenburn-theme
-                        cyberpunk-theme
-                        solarized-theme
-                        abyss-theme
-                        base16-theme)))
+        (defun sb:set-browser (blist)
+          (if blist
+              (if (sb:exe-in-path? (car blist))
+                  (setq browse-url-browser-function 'browse-url-generic
+                        browse-url-generic-program (sb:find-in-path (car blist)))
+                (sb:set-browser (cdr blist)))))
 
-        ;; Git integration
-        (add-to-list 'sb:package-list 'magit)
-        (use-package magit)
-
-        ;; Lua source editing 
-        (add-to-list 'sb:package-list 'lua-mode)                
-        (use-package lua-mode)
-
-        ;; Haskell programming
-        (add-to-list 'sb:package-list 'haskell-mode)
-        (use-package haskell-mode)
-
-        ;; Markdown syntax highlighting
-        (add-to-list 'sb:package-list 'markdown-mode)
-        (use-package markdown-mode)
-
-        ;; Helm, better navigation and auto-complete  
-        (add-to-list 'sb:package-list 'helm)
-        (use-package helm)
-
-        ;; "projects" (helper commands centered around git repos)
-        (add-to-list 'sb:package-list 'projectile)                
-        (use-package projectile)
-
-        ;; Integrate projectile into helm
-        (add-to-list 'sb:package-list 'helm-projectile)
-        (use-package helm-projectile)
-
-        ;; Sidebar with directory listing and source outline 
-        (add-to-list 'sb:package-list 'sr-speedbar)                
-        (use-package sr-speedbar)
-
-        ;; Edit support for cmake (CMakeLists.txt)
-        (add-to-list 'sb:package-list 'cmake-mode)
-        (use-package cmake-mode)
-
-        ;; Auto-complete (COMP-lete ANY)
-        (add-to-list 'sb:package-list 'company)
-        (use-package company)
-
-        ;; Pre-reqs for Lean mode (
-        (setq sb:package-list
-              (append
-               sb:package-list
-               '(dash dash-functional f s )))
-        (use-package dash)
-        (use-package dash-functional)
-        (use-package f)
-        (use-package s)
-
-        ;; Support editing source in source (like javascript inside html)
-        (add-to-list 'sb:package-list 'mmm-mode)
-        (use-package mmm-mode)
-
-        ;; Not sure why this is here
-        (add-to-list 'sb:package-list 'fill-column-indicator)         
-        (use-package fill-column-indicator)
-
-        ;; Read docs for this 
-        (add-to-list 'sb:package-list 'flycheck)
-        (use-package flycheck)
-
-        ;; Gtags might go away soon in favor of rtags
-        (if sb:has-gtags
-            (add-to-list 'sb:package-list
-                         'helm-gtags))
-
-
-        ;; TODO
-        ;; Fancy mode line (from https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#mode-line)
-        ;; (add-to-list 'sb:package-list 'delight)
-        ;; (add-to-list 'sb:package-list 'spaceline)
-        ;; (add-to-list 'sb:package-list 'spaceline-config)
-
-        (dolist (package sb:package-list)
-          (when (not (package-installed-p package))
-            (package-refresh-contents)
-            (package-install package)))
+        (sb:set-browser sb:browser-preferences)
       #+end_src
+
 
 
 * Appearance
@@ -498,11 +412,16 @@
 
     #+begin_src emacs-lisp
       (when (display-graphic-p) ;; if not in a terminal mode
+        
+        ;;(use-package zenburn-theme   :ensure t)
+        ;;(use-package cyberpunk-theme :ensure t)
+        ;;(use-package solarized-theme :ensure t)
+        (use-package abyss-theme     :ensure t)
+        ;;(use-package base16-theme    :ensure t)
 
         ;; Load a preferred theme
-        
         ;;(load-theme 'base16-default-dark)
-        (load-theme 'cyberpunk t)
+        ;;(load-theme 'cyberpunk t)
         ;;(load-theme 'solarized-dark t)
         ;;(load-theme 'abyss t)
         ) 
@@ -570,18 +489,20 @@
       (setq backup-by-copying t
 	    backup-directory-alist '(("." . "~/.saves")))
     #+end_src
-
+    
 * Setup Modes
 
-*** Helm (auto complete for most prompts)
+*** Helm: *way* better auto complete for most prompts
 
     A good intro to helm is available at
     http://tuhdo.github.io/helm-intro.html
 
     #+begin_src emacs-lisp
-      (require 'helm-config)
-      (helm-mode 1)
-      (global-set-key (kbd "C-x C-f") 'helm-find-files)
+      (when sb:helm-enabled
+        (use-package helm :ensure t)
+        (require 'helm-config)
+        (helm-mode 1)
+        (global-set-key (kbd "C-x C-f") 'helm-find-files))
     #+end_src
 
 *** WindMove
@@ -592,7 +513,7 @@
       (when (fboundp 'windmove-default-keybindings)
         (windmove-default-keybindings))
 
-	#+end_src
+    #+end_src
 *** Org System (Notes/Agendas/Journal/Wiki)
 
 ***** General Org Mode
@@ -610,43 +531,41 @@
 	#+end_src
 ******* Inline LaTeX
 
-		Preview with "C-c C-x C-l"
+	Preview with "C-c C-x C-l"
 
-		#+begin_src emacs-lisp
+	#+begin_src emacs-lisp
           ;; Make math mode previews look better
           (setq preview-scale-function 1.2)
           (setq preview-fast-conversion 'off)
           (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.6))
-		#+end_src
+	#+end_src
 ***** Personalized 
       Load org system config from file share, if present. One day I
       might make an example layout and commit that publicly too. Until
       then, just use your imaginations ;)
       
       #+begin_src emacs-lisp
+        ; Determine root dir of org system based on system type (because
+        ; windows paths are retarded)
 
-      	; Determine root dir of org system based on system type (because
-      	; windows paths are retarded)
-
-      	(cond ((eq system-type 'gnu/linux) 
+        (cond ((eq system-type 'gnu/linux) 
                (setq sb:orgdir "/storage/organizer"))
               ((eq system-type 'windows-nt)
                (setq sb:orgdir "Z:\\organizer"))
               (t
                (setq sb:orgdir "/")))
 
-      	; Define some helper functions to keep path specs small
+        ; Define some helper functions to keep path specs small
 
-      	(defun sb:orgdircat (filename)
+        (defun sb:orgdircat (filename)
           (concat (file-name-as-directory sb:orgdir)  filename))
 
-      	; Check that guessed paths are sane, assume connectivity problem if not
+        ; Check that guessed paths are sane, assume connectivity problem if not
 
-      	(if (and (file-directory-p sb:orgdir)
-               	 (file-exists-p (sb:orgdircat "config.org")))
-          	(org-babel-load-file (sb:orgdircat "config.org"))
+        (if (and (file-directory-p sb:orgdir)
+                 (file-exists-p (sb:orgdircat "config.org")))
+                (org-babel-load-file (sb:orgdircat "config.org"))
           (warn "File server does not seem to be accessible"))
-
       #+end_src
 
 *** Development Environment
@@ -654,61 +573,75 @@
 ***** Global settings
 
 ******* Spaces, not tabs
-		#+begin_src emacs-lisp
+        #+begin_src emacs-lisp
           (setq indent-tabs-mode nil)
-		#+end_src
+        #+end_src
 ***** Projectile (Project Management)
 
+      Projectile mode keeps a cache of recently used VCS projects and
+      allows quick navigation to an within them. This integrates
+      nicely with helm.
+
       #+begin_src emacs-lisp
-      	(projectile-global-mode)
-      	(setq projectile-completion-system 'helm)
-      	(helm-projectile-on)
+        (use-package projectile :ensure t)
+        (projectile-global-mode)
+        (when sb:helm-enabled 
+          (use-package helm-projectile :ensure t)
+          (setq projectile-completion-system 'helm)
+          (helm-projectile-on))
       #+end_src
 
 ***** GTags (Source navigation)
-	  
-	  #+begin_src emacs-lisp
-            (when sb:has-gtags
-
-              (setq helm-gtags-ignore-case t
-                    helm-gtags-auto-update t
-                    helm-use-input-at-cursor t
-                    helm-gtags-pulse-at-cursor t
-                    helm-gtags-prefix-key "\C-cg"
-                    helm-gtags-suggested-key-mapping t)
-              
-              (require 'helm-gtags)
-              ;; Enable helm-gtags-mode
-              (add-hook 'dired-mode-hook 'helm-gtags-mode)
-              (add-hook 'eshell-mode-hook 'helm-gtags-mode)
-              (add-hook 'c-mode-hook 'helm-gtags-mode)
-              (add-hook 'c++-mode-hook 'helm-gtags-mode)
-              (add-hook 'asm-mode-hook 'helm-gtags-mode)
-              
-              (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
-              (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
-              (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
-              (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
-              (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
-              (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))
-	  #+end_src
+      
+      #+begin_src emacs-lisp
+        (when (and sb:has-gtags sb:helm-enabled)
+          (use-package helm-gtags :ensure t)
+          (setq helm-gtags-ignore-case t
+                helm-gtags-auto-update t
+                helm-use-input-at-cursor t
+                helm-gtags-pulse-at-cursor t
+                helm-gtags-prefix-key "\C-cg"
+                helm-gtags-suggested-key-mapping t)
+          
+          (require 'helm-gtags)
+          ;; Enable helm-gtags-mode
+          (add-hook 'dired-mode-hook 'helm-gtags-mode)
+          (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+          (add-hook 'c-mode-hook 'helm-gtags-mode)
+          (add-hook 'c++-mode-hook 'helm-gtags-mode)
+          (add-hook 'asm-mode-hook 'helm-gtags-mode)
+          
+          (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+          (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+          (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+          (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+          (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+          (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))
+      #+end_src
 
 ***** SR Speedbar (file browser / code outlining)
 	  
-	  Quick-access file browser that runs along side of a normal
-	  window supporting outlines of source code structure.
+      Quick-access file browser that runs along side of a normal
+      window supporting outlines of source code structure.
 
-	  #+begin_src emacs-lisp
-        ;; Display on the left
-        (setq sr-speedbar-right-side nil)
+      #+begin_src emacs-lisp
+        (when sb:speedbar-enabled
+          (use-package sr-speedbar :ensure t)
 
-        ;; Setup quick on/off keys
-        (global-set-key "\C-cso" 'sr-speedbar-open)
-        (global-set-key "\C-csc" 'sr-speedbar-close)
-        (global-set-key "\C-cst" 'sr-speedbar-toggle)
-	  #+end_src
+          ;; Display on the left
+          (setq sr-speedbar-right-side nil)
+
+          ;; Setup quick on/off keys
+          (global-set-key "\C-cso" 'sr-speedbar-open)
+          (global-set-key "\C-csc" 'sr-speedbar-close)
+          (global-set-key "\C-cst" 'sr-speedbar-toggle))
+      #+end_src
 
 ***** Magit (Git integration)
+
+      #+begin_src emacs-lisp
+        (use-package magit :ensure t)
+      #+end_src
 
 ******* Screw the gawdy highlighting of diff
 
@@ -727,7 +660,20 @@
             (when sb:has-spell
               (add-hook 'flyspell-mode-hook 'flyspell-buffer))
 	  #+end_src
-
+***** Flycheck 
+      #+begin_src emacs-lisp
+        (use-package flycheck :ensure t)
+      #+end_src
+***** Multiple Major Mode 
+      Support editing source in source (like javascript inside html)
+      
+      #+begin_src emacs-lisp
+        (use-package mmm-mode :ensure t)
+      #+end_src 
+***** Company Mode (COMPlete ANYthing code completion)
+      #+begin_src emacs-lisp
+        (use-package company :ensure t)
+      #+end_src 
 ***** C/C++
       
 ******* Appearance / Tabbing
@@ -796,27 +742,23 @@
 
 ***** Haskell
 
-      
-******* Doc mode
+      I don't use Haskell for much, this is a rather basic setup.
 
-      	#+begin_src emacs-lisp
-          ;; Not totally sure what doc mode is yet... sounds like a good enough idea
-          (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-      	#+end_src
+      #+begin_src emacs-lisp
+        (use-package haskell-mode
+          :init (progn
 
-******* Indentation
+                  ;; Not totally sure what doc mode is yet... sounds like a good enough idea
+                  (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+                  
+                  ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+                  (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+                  ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent) 
 
-      	#+begin_src emacs-lisp
-          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
-          (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-          ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent) 
-      	#+end_src
+                  (when sb:has-spell
+                    (add-hook 'haskell-mode-hook 'flyspell-prog-mode))))
+      #+end_src   
 
-******* Spell check
-	#+begin_src emacs-lisp
-          (when sb:has-spell
-            (add-hook 'haskell-mode-hook 'flyspell-prog-mode))
-	#+end_src
 ***** Agda
 
       #+begin_src emacs-lisp
@@ -900,8 +842,14 @@
             (add-hook 'text-mode-hook 'flyspell-mode)
             (add-hook 'text-mode-hook 'flyspell-buffer))
         #+end_src
+***** Lua
+      #+begin_src emacs-lisp
+        (use-package lua-mode :ensure t)
+      #+end_src
+
 ***** CMake
-	  #+begin_src emacs-lisp
+      #+begin_src emacs-lisp
+        (use-package cmake-mode :ensure t)
         ;; Note that cmake goes at the front of the list because it needs to
         ;; take precedence over *.txt
         (setq auto-mode-alist
@@ -909,66 +857,75 @@
                '(("CMakeLists\\.txt\\'" . cmake-mode))
                '(("\\.cmake\\'" . cmake-mode))
                auto-mode-alist))
-	  #+end_src
+      #+end_src
 
 ***** Lean
 
 	  #+begin_src emacs-lisp
-        ;; Have to set this before require or else it only uses its own
-        ;; version. However... setting this is probably a bad idea in
-        ;; general. It's hard to directly control when emacs runs what lean
-        ;; processes, and memory usage can run away from you very easily,
-        ;; locking the entire system.
+            (when sb:lean-enabled
+              (use-package dash :ensure t)
+              (use-package dash-functional :ensure t)
+              (use-package f)
+              (use-package s))
 
-        ;; (setq lean-flycheck-checker-options '(
-        ;;                                       "-M"
-        ;;                                       "4096"
-        ;;                                       "--keep-going" "999"
-        ;;                                       "--flycheck"
-        ;;                                       "--flycheck-max-messages" "100"))
 
-        ;; Find lean-mode.el based on whichever lean binary is first in $PATH.
+            ;; Have to set this before require or else it only uses its own
+            ;; version. However... setting this is probably a bad idea in
+            ;; general. It's hard to directly control when emacs runs what lean
+            ;; processes, and memory usage can run away from you very easily,
+            ;; locking the entire system.
 
-        ;; Lean requires 'lean-rootdir' to be set prior to requiring lean-mode
-        (setq lean-rootdir
-              (replace-regexp-in-string
-               "\\(bin\\)?.lean.*" ""
-               (or (locate-file "lean"
-                            (split-string (getenv "PATH") ":")
-                            (if (eq system-type 'windows-nt) '(".exe") nil)) "/usr")))
+            ;; (setq lean-flycheck-checker-options '(
+            ;;                                       "-M"
+            ;;                                       "4096"
+            ;;                                       "--keep-going" "999"
+            ;;                                       "--flycheck"
+            ;;                                       "--flycheck-max-messages" "100"))
+
+            ;; Find lean-mode.el based on whichever lean binary is first in $PATH.
+
+            ;; Lean requires 'lean-rootdir' to be set prior to requiring lean-mode
+            (setq lean-rootdir
+                  (replace-regexp-in-string
+                   "\\(bin\\)?.lean.*" ""
+                   (or (locate-file "lean"
+                                (split-string (getenv "PATH") ":")
+                                (if (eq system-type 'windows-nt) '(".exe") nil)) "/usr")))
+
+            (when sb:lean-enabled
+              (let  ((mylean-path (concat (file-name-as-directory lean-rootdir)
+                                          (file-name-as-directory "share")
+                                          (file-name-as-directory "emacs")
+                                          (file-name-as-directory "site-lisp")
+                                          "lean")))
+                (when (file-exists-p (concat (file-name-as-directory mylean-path) "lean-mode.el"))
+                  (add-to-list 'load-path (expand-file-name mylean-path))
+                  (require 'lean-mode))))
               
-        (let  ((mylean-path (concat (file-name-as-directory lean-rootdir)
-                                    (file-name-as-directory "share")
-                                    (file-name-as-directory "emacs")
-                                    (file-name-as-directory "site-lisp")
-                                    "lean")))
-          (when (file-exists-p (concat (file-name-as-directory mylean-path) "lean-mode.el"))
-            (add-to-list 'load-path (expand-file-name mylean-path))
-            (require 'lean-mode)))
-          
-        (defun sb:lean-mode-hook ()
-          
-          ;; Display line numbers
-          (linum-mode)
-          (setq linum-format "%4d \u2502")
-          
-          ;; Dont wrap long lines
-          (toggle-truncate-lines)
+            (defun sb:lean-mode-hook ()
+              
+              ;; Display line numbers
+              (linum-mode)
+              (setq linum-format "%4d \u2502")
+              
+              ;; Dont wrap long lines
+              (toggle-truncate-lines)
 
-          (local-set-key (kbd "\C-c\C-c") 
-                         (lambda ()
-                           (interactive)
-                           (save-buffer)
-                           (let ((current-prefix-arg ""))
-                             (lean-execute nil))))
-          (local-set-key (kbd "\C-c f") 
-                         (lambda ()
-                           (interactive)
-                           (lean-flycheck-toggle-use)
-                           (message "Lean Flychecking is %s"
-                                    (if lean-flycheck-use "ON" "OFF")))))
+              (local-set-key (kbd "\C-c\C-c") 
+                             (lambda ()
+                               (interactive)
+                               (save-buffer)
+                               (let ((current-prefix-arg ""))
+                                 (lean-execute nil))))
+              (local-set-key (kbd "\C-c f") 
+                             (lambda ()
+                               (interactive)
+                               (lean-flycheck-toggle-use)
+                               (message "Lean Flychecking is %s"
+                                        (if lean-flycheck-use "ON" "OFF")))))
 
-        (add-hook 'lean-mode-hook 'sb:lean-mode-hook)
+            (when sb:lean-enabled
+              (add-hook 'lean-mode-hook 'sb:lean-mode-hook))
 
 
 	  #+end_src
@@ -990,7 +947,9 @@
       #+end_src
 
 *** Markdown 
-
+    #+begin_src emacs-lisp
+        (use-package markdown-mode :ensure t)
+    #+end_src
     
 ***** Setup autoload
 
