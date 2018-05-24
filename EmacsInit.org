@@ -929,6 +929,19 @@
 
 	  #+end_src
 
+***** Clojure
+
+      Clojure is a LISP for the JVM
+
+      It is integrated in emacs via two packages. For editing,
+      highlighting, etc there is clojure-mode. For more advanced
+      integration there is cider.
+
+      #+begin_src emacs-lisp
+        (use-package clojure-mode :ensure t)
+        (use-package cider :ensure t)
+      #+end_src
+
 *** GnuPG / EasyPG
 ***** GPG Agent Issues
       
